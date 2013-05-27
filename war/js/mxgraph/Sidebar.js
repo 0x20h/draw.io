@@ -1,5 +1,5 @@
 /**
- * $Id: Sidebar.js,v 1.38 2013/02/28 14:45:22 david Exp $
+ * $Id: Sidebar.js,v 1.42 2013/05/07 09:48:56 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 /**
@@ -354,14 +354,18 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	    content.appendChild(this.createVertexTemplate('ellipse;shape=doubleEllipse;whiteSpace=wrap', 80, 80, '', 'Double Ellipse', true));
 	    content.appendChild(this.createVertexTemplate('shape=ext;double=1;whiteSpace=wrap', 120, 60, 'Double Rectangle', 'Double Rectangle', true));
 	    content.appendChild(this.createVertexTemplate('shape=ext;double=1;rounded=1;whiteSpace=wrap', 120, 60, 'Double\nRounded Rectangle', 'Double Rounded Rectangle', true));
-	    content.appendChild(this.createVertexTemplate('shape=cylinder;whiteSpace=wrap', 60, 80, '', 'Cylinder', true));
+	    content.appendChild(this.createVertexTemplate('shape=process;whiteSpace=wrap', 120, 60, '', 'Process', true));
+	    content.appendChild(this.createVertexTemplate('shape=parallelogram;whiteSpace=wrap', 120, 60, '', 'Parallelogram', true));
+	    content.appendChild(this.createVertexTemplate('shape=trapezoid;whiteSpace=wrap', 120, 60, '', 'Trapezoid', true));
+	    content.appendChild(this.createVertexTemplate('shape=document;whiteSpace=wrap', 120, 80, '', 'Document', true));
+	    content.appendChild(this.createVertexTemplate('triangle;whiteSpace=wrap', 60, 80, '', 'Triangle', true));
 	    content.appendChild(this.createVertexTemplate('rhombus;whiteSpace=wrap', 80, 80, '', 'Rhombus', true));
 	    content.appendChild(this.createVertexTemplate('shape=hexagon;whiteSpace=wrap', 120, 80, '', 'Hexagon', true));
-	    content.appendChild(this.createVertexTemplate('triangle;whiteSpace=wrap', 60, 80, '', 'Triangle', true));
+	    content.appendChild(this.createVertexTemplate('shape=step;whiteSpace=wrap', 120, 80, '', 'Step', true));
+	    content.appendChild(this.createVertexTemplate('shape=cylinder;whiteSpace=wrap', 60, 80, '', 'Cylinder', true));
 	    content.appendChild(this.createVertexTemplate('shape=tape;whiteSpace=wrap', 120, 100, '', 'Tape', true));
 	    content.appendChild(this.createVertexTemplate('shape=xor;whiteSpace=wrap', 60, 80, '', 'Exclusive Or', true));
 	    content.appendChild(this.createVertexTemplate('shape=or;whiteSpace=wrap', 60, 80, '', 'Or', true));
-	    content.appendChild(this.createVertexTemplate('shape=step;whiteSpace=wrap', 120, 80, '', 'Step', true));
 	    content.appendChild(this.createVertexTemplate('shape=cube;whiteSpace=wrap', 120, 80, '', 'Cube', true));
 	    content.appendChild(this.createVertexTemplate('shape=note;whiteSpace=wrap', 80, 100, '', 'Note', true));
 	    content.appendChild(this.createVertexTemplate('shape=folder;whiteSpace=wrap', 120, 120, '', 'Folder', true));
@@ -718,14 +722,13 @@ Sidebar.prototype.addBpmnPalette = function(dir, expand)
 	    var classCell = new mxCell('', new mxGeometry(0, 0, 40, 30), 'shape=message');
     	classCell.vertex = true;
 
-		content.appendChild(this.createEdgeTemplateFromCells([classCell], 40, 30, 'Message', true));
+		content.appendChild(this.createVertexTemplateFromCells([classCell], 40, 30, 'Message', true));
 		
 	    var classCell = new mxCell('', new mxGeometry(0, 0, 14, 14), 'shape=plus;resizable=0;');
 	    classCell.connectable = false;
     	classCell.vertex = true;
 
-		content.appendChild(this.createEdgeTemplateFromCells([classCell], 14, 14, 'Sub-Process Marker', true));
-
+		content.appendChild(this.createVertexTemplateFromCells([classCell], 14, 14, 'Sub-Process Marker', true));
 
 		var assoc = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=block;endFill=1;endSize=6');
 		assoc.geometry.setTerminalPoint(new mxPoint(0, 0), true);
@@ -977,9 +980,20 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview)
 /**
  * Adds a handler for inserting the cell with a single click.
  */
-Sidebar.prototype.addClickHandler = function(elt, ds)
+Sidebar.prototype.itemClicked = function(cells, ds, evt)
 {
 	var graph = this.editorUi.editor.graph;
+	var gs = graph.getGridSize();
+	ds.drop(graph, evt, null, gs, gs);
+};
+
+/**
+ * Adds a handler for inserting the cell with a single click.
+ */
+Sidebar.prototype.addClickHandler = function(elt, ds, cells)
+{
+	var graph = this.editorUi.editor.graph;
+	var oldMouseUp = ds.mouseUp;
 	var first = null;
 	
 	mxEvent.addGestureListeners(elt, function(evt)
@@ -987,8 +1001,7 @@ Sidebar.prototype.addClickHandler = function(elt, ds)
 		first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 	});
 	
-	var oldMouseUp = ds.mouseUp;
-	ds.mouseUp = function(evt)
+	ds.mouseUp = mxUtils.bind(this, function(evt)
 	{
 		if (!mxEvent.isPopupTrigger(evt) && this.currentGraph == null && first != null)
 		{
@@ -997,14 +1010,16 @@ Sidebar.prototype.addClickHandler = function(elt, ds)
 			if (Math.abs(first.x - mxEvent.getClientX(evt)) <= tol &&
 				Math.abs(first.y - mxEvent.getClientY(evt)) <= tol)
 			{
-				var gs = graph.getGridSize();
-				ds.drop(graph, evt, null, gs, gs);
+				this.itemClicked(cells, ds, evt);
 			}
 		}
 
-		oldMouseUp.apply(this, arguments);
+		oldMouseUp.apply(ds, arguments);
 		first = null;
-	};
+		
+		// Blocks tooltips on this element after single click
+		this.currentElt = elt;
+	});
 };
 
 /**
@@ -1025,7 +1040,7 @@ Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height,
 {
 	var elt = this.createItem(cells, title, showLabel);
 	var ds = this.createDragSource(elt, this.createDropHandler(cells, true), this.createDragPreview(width, height));
-	this.addClickHandler(elt, ds);
+	this.addClickHandler(elt, ds, cells);
 
 	// Uses guides for vertices only if enabled in graph
 	ds.isGuidesEnabled = mxUtils.bind(this, function()
@@ -1143,7 +1158,7 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	title.style.backgroundImage = (content.style.display == 'none') ?
 		'url(' + IMAGE_PATH + '/collapsed.gif)' : 'url(' + IMAGE_PATH + '/expanded.gif)';
 	title.style.backgroundRepeat = 'no-repeat';
-	title.style.backgroundPosition = '100% 50%';
+	title.style.backgroundPosition = '0% 50%';
 	
 	mxEvent.addListener(title, 'click', function(evt)
 	{
@@ -1155,11 +1170,16 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 				
 				if (funct != null)
 				{
+					// Wait cursor does not show up on Mac
 					title.style.cursor = 'wait';
+					var prev = title.innerHTML;
+					title.innerHTML = mxResources.get('loading') + '...';
+					
 					window.setTimeout(function()
 					{
 						funct(content);
 						title.style.cursor = '';
+						title.innerHTML = prev;
 					}, 0);
 				}
 			}

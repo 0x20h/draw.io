@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupForms.js,v 1.8 2013/03/19 15:04:00 david Exp $
+ * $Id: mxMockupForms.js,v 1.11 2013/05/24 05:21:33 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -919,7 +919,7 @@ mxShapeMockupSpinner.prototype.foreground = function(c, w, h, spinnerLayout)
 
 mxShapeMockupSpinner.prototype.mainText = function(c, w, h, spinnerLayout)
 {
-	var spinnerText = mxUtils.getValue(this.style, mxShapeMockupSpinner.prototype.cst.MAIN_TEXT, '100');
+	var spinnerText = mxUtils.getValue(this.style, mxShapeMockupSpinner.prototype.cst.MAIN_TEXT, '100').toString();
 	var fontSize = mxUtils.getValue(this.style, mxShapeMockupSpinner.prototype.cst.TEXT_SIZE, '17');
 	var fontColor = mxUtils.getValue(this.style, mxShapeMockupSpinner.prototype.cst.TEXT_COLOR, '#666666');
 	c.setFontSize(fontSize);
@@ -1572,7 +1572,17 @@ mxShapeMockupWedgeBar.prototype.paintVertexShape = function(c, x, y, w, h)
 			selectedTab = i;
 		}
 
-		labelWidths[i] = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+		var currW = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+
+		if (currW === 0)
+		{
+			labelWidths[i] = 42;
+		}
+		else
+		{
+			labelWidths[i] = currW;
+		}
+
 		minW = minW + labelWidths[i];
 	}
 
@@ -2141,7 +2151,7 @@ mxShapeMockupCalendar.prototype.foreground = function(c, w, h)
 		c.setStrokeWidth(2);
 		c.setFillColor(strokeColor2);
 		c.setFontColor(textColor2);
-		
+
 		c.rect(selX, selY, cellSize, h * 0.1143);
 		c.fillAndStroke();
 		c.text(selX + cellSize * 0.5, selY + cellSize * 0.5, 0, 0, selDay.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
@@ -2149,3 +2159,130 @@ mxShapeMockupCalendar.prototype.foreground = function(c, w, h)
 };
 
 mxCellRenderer.prototype.defaultShapes[mxShapeMockupCalendar.prototype.cst.SHAPE_CALENDAR] = mxShapeMockupCalendar;
+
+//**********************************************************************************************************************************************************
+//Email Form
+//**********************************************************************************************************************************************************
+/**
+ * Extends mxShape.
+ */
+function mxShapeMockupEmailForm(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+ * Extends mxShape.
+ */
+mxUtils.extend(mxShapeMockupEmailForm, mxShape);
+
+mxShapeMockupEmailForm.prototype.cst = {
+		MAIN_TEXT : 'mainText',
+		TEXT_COLOR : 'textColor',
+		SHOW_CC : 'showCC',
+		SHOW_BCC : 'showBCC',
+		TEXT_SIZE : 'textSize',
+		SHAPE_EMAIL_FORM : 'mxgraph.mockup.forms.emailForm'
+};
+
+/**
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
+mxShapeMockupEmailForm.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	var fontSize = mxUtils.getValue(this.style, mxShapeMockupEmailForm.prototype.cst.TEXT_SIZE, '12');
+	var showCC = mxUtils.getValue(this.style, mxShapeMockupEmailForm.prototype.cst.SHOW_CC, 'true');
+	var showBCC = mxUtils.getValue(this.style, mxShapeMockupEmailForm.prototype.cst.SHOW_BCC, 'true');
+	var tabX = fontSize * 4;
+
+	var optCount = 0;
+	
+	if (showCC === 'true')
+	{
+		optCount++;
+	}
+	
+	if (showBCC === 'true')
+	{
+		optCount++;
+	}
+	
+	w = Math.max(w, fontSize * 5);
+	h = Math.max(h, fontSize * 10.5 + optCount * fontSize * 3);
+	
+	c.translate(x, y);
+	this.background(c, w, h, fontSize, tabX, showCC, showBCC);
+	c.setShadow(false);
+	this.foreground(c, w, h, fontSize, tabX, showCC, showBCC);
+};
+
+mxShapeMockupEmailForm.prototype.background = function(c, w, h, fontSize, tabX, showCC, showBCC)
+{
+	var messX = fontSize * 9;
+
+	if (showCC === 'true')
+	{
+		messX = messX + fontSize * 3;
+		c.rect(tabX, fontSize * 9, w - tabX, fontSize * 1.5);
+		c.fillAndStroke();
+	}
+
+	if (showBCC === 'true')
+	{
+		c.rect(tabX, messX, w - tabX, fontSize * 1.5);
+		messX = messX + fontSize * 3;
+		c.fillAndStroke();
+	}
+
+	c.rect(tabX, 0, w - tabX, fontSize * 1.5);
+	c.fillAndStroke();
+	c.rect(tabX, fontSize * 3, w - tabX, fontSize * 1.5);
+	c.fillAndStroke();
+	c.rect(tabX, fontSize * 6, w - tabX, fontSize * 1.5);
+	c.fillAndStroke();
+	c.rect(0, messX, w, h - messX);
+	c.fillAndStroke();
+};
+
+mxShapeMockupEmailForm.prototype.foreground = function(c, w, h, fontSize, tabX, showCC, showBCC)
+{
+	var mainText = mxUtils.getValue(this.style, mxShapeMockupEmailForm.prototype.cst.MAIN_TEXT, 'john@jgraph.com,Greeting,fred@jgraph.com,,,Lorem ipsum').toString().split(',');
+	var fontColor = mxUtils.getValue(this.style, mxShapeMockupEmailForm.prototype.cst.TEXT_COLOR, '#666666');
+
+	c.setFontColor(fontColor);
+	c.setFontSize(fontSize);
+
+	c.text(tabX - fontSize * 0.5, fontSize * 0.75, 0, 0, 'From', mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(tabX - fontSize * 0.5, fontSize * 3.75, 0, 0, 'Subject', mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(tabX - fontSize * 0.5, fontSize * 6.75, 0, 0, 'To', mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+
+	c.text(tabX + fontSize * 0.5, fontSize * 0.75, 0, 0, mainText[0], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(tabX + fontSize * 0.5, fontSize * 3.75, 0, 0, mainText[1], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(tabX + fontSize * 0.5, fontSize * 6.75, 0, 0, mainText[2], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	
+	var messX = fontSize * 9;
+
+	if (showCC === 'true')
+	{
+		messX = messX + fontSize * 3;
+		c.text(tabX - fontSize * 0.5, fontSize * 9.75, 0, 0, 'CC', mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		c.text(tabX + fontSize * 0.5, fontSize * 9.75, 0, 0, mainText[3], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	}
+
+	if (showBCC === 'true')
+	{
+		c.text(tabX - fontSize * 0.5, messX + fontSize * 0.75, 0, 0, 'BCC', mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		c.text(tabX + fontSize * 0.5, messX + fontSize * 0.75, 0, 0, mainText[4], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		messX = messX + fontSize * 3;
+	}
+
+	c.text(fontSize * 0.5, messX + fontSize * 0.75, 0, 0, mainText[5], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+};
+
+mxCellRenderer.prototype.defaultShapes[mxShapeMockupEmailForm.prototype.cst.SHAPE_EMAIL_FORM] = mxShapeMockupEmailForm;

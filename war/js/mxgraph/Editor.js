@@ -1,5 +1,5 @@
 /**
- * $Id: Editor.js,v 1.14 2013/03/06 17:57:10 boris Exp $
+ * $Id: Editor.js,v 1.16 2013/05/01 16:17:21 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 // Specifies if local storage should be used (eg. on the iPad which has no filesystem)
@@ -125,6 +125,18 @@ Editor.prototype.setGraphXml = function(node)
 {
 	var dec = new mxCodec(node.ownerDocument);
 	
+	// Preparations for wrapped graph models in case of cached clients.
+	// This will read the first mxGraphModel found inside the wrapper.
+	if (node.nodeName != 'mxGraphModel')
+	{
+		var nodes = node.getElementsByTagName('mxGraphModel');
+		
+		if (nodes != null && nodes.length > 0)
+		{
+			node = nodes[0];
+		}
+	}
+	
 	if (node.nodeName == 'mxGraphModel')
 	{
 		this.graph.view.scale = 1;
@@ -177,6 +189,15 @@ Editor.prototype.setGraphXml = function(node)
 		}
 		
 		dec.decode(node, this.graph.getModel());
+		this.updateGraphComponents();
+	}
+	else
+	{
+		// Workaround for invalid XML output in Firefox 20 due to bug in mxUtils.getXml
+		var wrapper = dec.document.createElement('mxGraphModel');
+		wrapper.appendChild(node);
+		
+		dec.decode(wrapper, this.graph.getModel());
 		this.updateGraphComponents();
 	}
 };

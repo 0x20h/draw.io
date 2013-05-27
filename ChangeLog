@@ -1,4 +1,59 @@
-19-MAR-2013:2.2.0.2
+- Adds plugins, plugin dialogs
+
+22-MAY-2013: 2.3.1.0
+
+- Fixes vertical label export offset bug
+- Fixes MT bugs in Visio import
+
+11-MAY-2013: 2.3.0.1
+
+- Minor changes to language menu
+
+07-MAY-2013: 2.3.0.0
+
+- Makes labels of mockup, ER shapes editable
+- Replaces width and height checks with area check in export
+- Adds language configuration in local storage
+- Ignores "dot" files in local storage open dialog
+- Fixes handling of nested default edges
+- Adds live preview for vertex resizing, edge handling
+- Adds process, document, parallelograph and trapezoid shapes
+- Adds layers, language menu and resources
+
+12-APR-2013: 2.2.2.5
+
+- Added debugging
+
+11-APR-2013: 2.2.2.4
+
+- Minor bug fixes
+
+10-APR-2013: 2.2.2.3
+
+- Fixes shape deletion whilst dragging connection issue
+
+09-APR-2013: 2.2.2.2
+
+- Adds shape locking, Mac backspace delete and a changelog entry that has multiple items on one line and is more than 80 characters
+
+07-APR-2013: 2.2.2.1
+
+- Adds rack stencils
+- Fix for Safari save problem
+
+04-APR-2013: 2.2.2.0
+
+- Fix for Firefox 20 save problem
+
+27-MAR-2013: 2.2.1.0
+
+- Google Drive workflow changes
+
+23-MAR-2013: 2.2.0.3
+
+- Moves ER markers to side to avoid dynamic load issues
+
+19-MAR-2013: 2.2.0.2
 
 - Adds File->Rename for Google Drive file
 

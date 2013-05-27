@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupGraphics.js,v 1.4 2013/02/15 08:46:24 mate Exp $
+ * $Id: mxMockupGraphics.js,v 1.5 2013/05/22 12:28:49 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -1046,47 +1046,47 @@ mxShapeMockupGanttChart.prototype.foreground = function(c, x, y, w, h)
 	c.close();
 	c.fill();
 	
-	c.setFontSize(textSize);
-	c.setFontColor(textColor);
-	c.text(w * 0.425, h * 0.0975, 0, 0, 'M', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.475, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.525, h * 0.0975, 0, 0, 'W', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.575, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.625, h * 0.0975, 0, 0, 'F', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.675, h * 0.0975, 0, 0, 'S', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.725, h * 0.0975, 0, 0, 'S', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.775, h * 0.0975, 0, 0, 'M', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.825, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.875, h * 0.0975, 0, 0, 'W', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.925, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.975, h * 0.0975, 0, 0, 'F', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	
-	c.text(w * 0.575, h * 0.0325, 0, 0, '18/03/2013', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.875, h * 0.0325, 0, 0, '25/03/2013', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	
-	c.text(w * 0.358, h * 0.065, 0, 0, 'Effort', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.358, h * 0.18, 0, 0, '40h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.358, h * 0.255, 0, 0, '16h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.358, h * 0.33, 0, 0, '32h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.358, h * 0.405, 0, 0, '24h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-
-	c.text(w * 0.208, h * 0.065, 0, 0, 'Start', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.208, h * 0.18, 0, 0, '18/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.208, h * 0.255, 0, 0, '18/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.208, h * 0.33, 0, 0, '19/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.208, h * 0.405, 0, 0, '21/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-
-	c.text(w * 0.065, h * 0.065, 0, 0, 'Task', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.065, h * 0.18, 0, 0, 'Task 1', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.065, h * 0.255, 0, 0, 'Task 2', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.065, h * 0.33, 0, 0, 'Task 3', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.065, h * 0.405, 0, 0, 'Task 4', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-
-	c.text(w * 0.015, h * 0.065, 0, 0, '#', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.015, h * 0.18, 0, 0, '1', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.015, h * 0.255, 0, 0, '2', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.015, h * 0.33, 0, 0, '3', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(w * 0.015, h * 0.405, 0, 0, '4', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.setFontSize(textSize);
+//	c.setFontColor(textColor);
+//	c.text(w * 0.425, h * 0.0975, 0, 0, 'M', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.475, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.525, h * 0.0975, 0, 0, 'W', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.575, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.625, h * 0.0975, 0, 0, 'F', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.675, h * 0.0975, 0, 0, 'S', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.725, h * 0.0975, 0, 0, 'S', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.775, h * 0.0975, 0, 0, 'M', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.825, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.875, h * 0.0975, 0, 0, 'W', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.925, h * 0.0975, 0, 0, 'T', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.975, h * 0.0975, 0, 0, 'F', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	
+//	c.text(w * 0.575, h * 0.0325, 0, 0, '18/03/2013', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.875, h * 0.0325, 0, 0, '25/03/2013', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	
+//	c.text(w * 0.358, h * 0.065, 0, 0, 'Effort', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.358, h * 0.18, 0, 0, '40h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.358, h * 0.255, 0, 0, '16h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.358, h * 0.33, 0, 0, '32h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.358, h * 0.405, 0, 0, '24h', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//
+//	c.text(w * 0.208, h * 0.065, 0, 0, 'Start', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.208, h * 0.18, 0, 0, '18/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.208, h * 0.255, 0, 0, '18/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.208, h * 0.33, 0, 0, '19/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.208, h * 0.405, 0, 0, '21/03/2013 8:00 AM', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//
+//	c.text(w * 0.065, h * 0.065, 0, 0, 'Task', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.065, h * 0.18, 0, 0, 'Task 1', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.065, h * 0.255, 0, 0, 'Task 2', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.065, h * 0.33, 0, 0, 'Task 3', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.065, h * 0.405, 0, 0, 'Task 4', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//
+//	c.text(w * 0.015, h * 0.065, 0, 0, '#', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.015, h * 0.18, 0, 0, '1', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.015, h * 0.255, 0, 0, '2', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.015, h * 0.33, 0, 0, '3', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+//	c.text(w * 0.015, h * 0.405, 0, 0, '4', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
 mxCellRenderer.prototype.defaultShapes[mxShapeMockupGanttChart.prototype.cst.SHAPE_GANTT_CHART] = mxShapeMockupGanttChart;

@@ -1,5 +1,5 @@
 /**
- * $Id: Toolbar.js,v 1.3 2013-02-20 16:21:29 gaudenz Exp $
+ * $Id: Toolbar.js,v 1.4 2013/05/01 13:10:22 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 /**
@@ -23,16 +23,16 @@ function Toolbar(editorUi, container)
  */
 Toolbar.prototype.init = function()
 {
-	this.addItems(['print', 'undo', 'redo', 'delete', '-', 'actualSize', 'zoomIn', 'zoomOut', '-']);
+	this.addItems(['undo', 'redo', 'delete', '-', 'actualSize', 'zoomIn', 'zoomOut', '-']);
 	var fontElt = this.addMenu('Helvetica', mxResources.get('fontFamily'), true, 'fontFamily');
 	fontElt.style.whiteSpace = 'nowrap';
 	fontElt.style.overflow = 'hidden';
-	fontElt.style.width = '70px';
+	fontElt.style.width = '56px';
 	this.addSeparator();
 	var sizeElt = this.addMenu('12', mxResources.get('fontSize'), true, 'fontSize');
 	sizeElt.style.whiteSpace = 'nowrap';
 	sizeElt.style.overflow = 'hidden';
-	sizeElt.style.width = '30px';
+	sizeElt.style.width = '22px';
 
 	this.addItems(['-', 'bold', 'italic', 'underline']);
 	var align = this.addMenuFunction('geSprite-left', mxResources.get('align'), false, mxUtils.bind(this, function(menu)

@@ -1,5 +1,5 @@
 /**
- * $Id: Menus.js,v 1.13 2013-02-20 16:21:29 gaudenz Exp $
+ * $Id: Menus.js,v 1.16 2013/05/07 09:48:56 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 /**
@@ -208,6 +208,111 @@ Menus.prototype.init = function()
 		menu.addItem(mxResources.get('middle'), null, function() { graph.alignCells(mxConstants.ALIGN_MIDDLE); }, parent);
 		menu.addItem(mxResources.get('bottomAlign'), null, function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, parent);
 	})));
+	this.put('layers', new Menu(mxUtils.bind(this, function(menu, parent)
+	{
+		var p = graph.getDefaultParent();
+		var selectedLayer = mxResources.get('background');
+		
+		var item = menu.addItem(selectedLayer, null, mxUtils.bind(this, function()
+		{
+			graph.setDefaultParent(null);
+		}), parent);
+		
+		if (p == graph.model.getChildAt(graph.model.root, 0))
+		{
+			this.addCheckmark(item);
+		}
+		
+		var layerCount = graph.model.getChildCount(graph.model.root);
+		
+		for (var i = 1; i < layerCount; i++)
+		{
+			(mxUtils.bind(this, function(child)
+			{
+				var title = child.value || mxResources.get('layer') + ' ' + i;
+				
+				if (!graph.model.isVisible(child))
+				{
+					title += ' (' + mxResources.get('hidden') + ')';
+				}
+				var item = menu.addItem(title, null, function()
+				{
+					if (!graph.model.isVisible(child))
+					{
+						graph.model.setVisible(child, true);
+						
+						// Forces a complete refresh to hide the edges in other
+						// layers which are connected to children of this layer
+						graph.view.invalidate();
+					}
+					
+					graph.setDefaultParent(child);
+				}, parent);
+				
+				if (p == child)
+				{
+					this.addCheckmark(item);
+					selectedLayer = title;
+				}
+			}))(graph.model.getChildAt(graph.model.root, i));
+		}
+
+		var notBackground = p != graph.model.getChildAt(graph.model.root, 0);
+		menu.addSeparator(parent);
+
+		menu.addItem(mxResources.get('removeIt', [selectedLayer]), null, mxUtils.bind(this, function()
+		{
+			graph.removeCells([p]);
+			graph.setDefaultParent(null);
+		}), parent, null, notBackground);
+
+		menu.addItem(mxResources.get('renameIt', [selectedLayer]), null, mxUtils.bind(this, function()
+		{
+			var newName = mxUtils.prompt(mxResources.get('enterName'), selectedLayer);
+			
+			if (newName != null && newName.length > 0)
+			{
+				graph.getModel().setValue(p, newName);
+			}
+		}), parent, null, notBackground);
+		
+		menu.addItem(mxResources.get('hideIt', [selectedLayer]), null, mxUtils.bind(this, function()
+		{
+			if (graph.model.isVisible(p))
+			{
+				graph.model.beginUpdate();
+				try
+				{
+					graph.model.setVisible(p, !graph.model.isVisible(p));
+					
+					// Forces a complete refresh to hide the edges in other
+					// layers which are connected to children of this layer
+					graph.view.invalidate();
+				}
+				finally
+				{
+					graph.model.endUpdate();
+				}
+				
+				graph.setDefaultParent(null);
+			}
+		}), parent, null, notBackground);
+		
+		menu.addSeparator(parent);
+		
+		menu.addItem(mxResources.get('moveSelectionTo', [selectedLayer]), null, mxUtils.bind(this, function()
+		{
+			graph.moveCells(graph.getSelectionCells(), 0, 0, false, p);
+		}), parent, null, !graph.isSelectionEmpty());
+
+		menu.addSeparator(parent);
+		
+		menu.addItem(mxResources.get('addLayer'), null, mxUtils.bind(this, function()
+		{
+			var cell = graph.addCell(new mxCell(), graph.model.root);
+			graph.setDefaultParent(cell);
+		}), parent);
+	})));
 	this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		menu.addItem(mxResources.get('horizontalTree'), null, mxUtils.bind(this, function()
@@ -264,14 +369,15 @@ Menus.prototype.init = function()
 		this.addSubmenu('layout', menu, parent);
 		this.addSubmenu('align', menu, parent);
 		menu.addSeparator(parent);
+		this.addSubmenu('layers', menu, parent);
 		this.addSubmenu('navigation', menu, parent);
-		this.addMenuItems(menu, ['-', 'group', 'ungroup', 'removeFromGroup', '-', 'autosize'], parent);
+		this.addMenuItems(menu, ['-', 'group', 'ungroup', 'removeFromGroup', '-', 'lockUnlock', '-', 'autosize'], parent);
 	})));
 	this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		this.addMenuItems(menu, ['actualSize'], parent);
 		menu.addSeparator();
-		var scales = [0.25, 0.5, 0.75, 1, 2, 4];
+		var scales = [0.25, 0.5, 0.75, 1, 1.5, 2, 4];
 		
 		for (var i = 0; i < scales.length; i++)
 		{
@@ -299,7 +405,7 @@ Menus.prototype.init = function()
 	this.put('options', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		this.addMenuItems(menu, ['grid', 'guides', 'tooltips', '-', 'connect', 'copyConnect', 'navigation',
-		                         'scrollbars', '-', 'pageView', '-', 'pageBackgroundColor']);
+		                         '-', 'scrollbars', 'pageView', '-', 'pageBackgroundColor']);
 	})));
 	this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
 	{

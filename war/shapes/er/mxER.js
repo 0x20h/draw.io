@@ -1,5 +1,5 @@
 /**
- * $Id: mxER.js,v 1.4 2013/02/07 08:01:15 mate Exp $
+ * $Id: mxER.js,v 1.6 2013/05/17 13:46:41 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -104,6 +104,21 @@ mxShapeEREntity.prototype.mainText = function(c, x, y, w, h, text, fontSize, fon
 };
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.entity'] = mxShapeEREntity;
+
+mxShapeEREntity.prototype.constraints = [
+                                           new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                           new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                           ];
 
 //**********************************************************************************************************************************************************
 //Entity Extended
@@ -283,6 +298,21 @@ mxShapeEREntityExt.prototype.attrText = function(c, x, y, w, h, attributes, font
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.entityExt'] = mxShapeEREntityExt;
 
+mxShapeEREntityExt.prototype.constraints = [
+                                         new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                         new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                         new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                         new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                         ];
+
 //**********************************************************************************************************************************************************
 //Attribute
 //**********************************************************************************************************************************************************
@@ -355,6 +385,17 @@ mxShapeERAttribute.prototype.mainText = function(c, x, y, w, h, text, fontSize, 
 };
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.attribute'] = mxShapeERAttribute;
+
+mxShapeERAttribute.prototype.constraints = [
+                                                 new mxConnectionConstraint(new mxPoint(0.144, 0.144), false),
+                                                 new mxConnectionConstraint(new mxPoint(0.856, 0.144), false),
+                                                 new mxConnectionConstraint(new mxPoint(0.856, 0.856), false),
+                                                 new mxConnectionConstraint(new mxPoint(0.144, 0.856), false),
+                                                 new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                                 new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                                 new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                                 new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+                                                 ];
 
 //**********************************************************************************************************************************************************
 //Has
@@ -440,6 +481,17 @@ mxShapeERHas.prototype.mainText = function(c, x, y, w, h, text, fontSize, fontCo
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.has'] = mxShapeERHas;
 
+mxShapeERHas.prototype.constraints = [
+                                      new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                      new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                      new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                      new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                      new mxConnectionConstraint(new mxPoint(0.25, 0.25), false),
+                                      new mxConnectionConstraint(new mxPoint(0.25, 0.75), false),
+                                      new mxConnectionConstraint(new mxPoint(0.75, 0.25), false),
+                                      new mxConnectionConstraint(new mxPoint(0.75, 0.75), false)
+                                      ];
+
 //**********************************************************************************************************************************************************
 //Cloud
 //**********************************************************************************************************************************************************
@@ -501,6 +553,17 @@ mxShapeERCloud.prototype.mainText = function(c, x, y, w, h, text, fontSize, font
 };
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.cloud'] = mxShapeERCloud;
+
+mxShapeERCloud.prototype.constraints = [
+                                        new mxConnectionConstraint(new mxPoint(0.08, 0.5), false),
+                                        new mxConnectionConstraint(new mxPoint(0.9, 0.5), false),
+                                        new mxConnectionConstraint(new mxPoint(0.5, 0.1), false),
+                                        new mxConnectionConstraint(new mxPoint(0.5, 0.92), false),
+                                        new mxConnectionConstraint(new mxPoint(0.24, 0.24), false),
+                                        new mxConnectionConstraint(new mxPoint(0.22, 0.8), false),
+                                        new mxConnectionConstraint(new mxPoint(0.81, 0.2), false),
+                                        new mxConnectionConstraint(new mxPoint(0.78, 0.78), false)
+                                      ];
 
 //**********************************************************************************************************************************************************
 //Hierarchy
@@ -671,6 +734,21 @@ mxShapeERHierarchy.prototype.shapeText = function(c, x, y, w, h, text, subText, 
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.hierarchy'] = mxShapeERHierarchy;
 
+mxShapeERHierarchy.prototype.constraints = [
+                                         new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                         new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                         new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                         new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                         new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                         new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                         ];
+
 //**********************************************************************************************************************************************************
 //Note
 //**********************************************************************************************************************************************************
@@ -745,6 +823,24 @@ mxShapeERNote.prototype.mainText = function(c, x, y, w, h, text, fontSize, fontC
 };
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.note'] = mxShapeERNote;
+
+mxShapeERNote.prototype.constraints = [
+                                           new mxConnectionConstraint(new mxPoint(0, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                           new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                           new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                           new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                           new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                           ];
 
 //**********************************************************************************************************************************************************
 //Chen's Notation Legend
@@ -837,6 +933,25 @@ mxShapeERChen.prototype.foreground = function(c, x, y, w, h, fontSize, fontColor
 };
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.chens'] = mxShapeERChen;
+
+mxShapeERChen.prototype.constraints = [
+                                       new mxConnectionConstraint(new mxPoint(0, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                       new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                       ];
 
 //**********************************************************************************************************************************************************
 //Bachman's Notation Legend
@@ -974,6 +1089,25 @@ mxShapeERBachman.prototype.foreground = function(c, x, y, w, h, fontSize, fontCo
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.bachmans'] = mxShapeERBachman;
 
+mxShapeERBachman.prototype.constraints = [
+                                       new mxConnectionConstraint(new mxPoint(0, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                       new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                       new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                       new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                       new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                       ];
+
 //**********************************************************************************************************************************************************
 //Information Engineering Notation Legend
 //**********************************************************************************************************************************************************
@@ -1091,130 +1225,22 @@ mxShapeERInfEng.prototype.foreground = function(c, x, y, w, h, fontSize, fontCol
 
 mxCellRenderer.prototype.defaultShapes['mxgraph.er.ie'] = mxShapeERInfEng;
 
-mxMarker.addMarker('ERone', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-
-	return function()
-	{
-		c.begin();
-		c.moveTo(pe.x - nx / 2 - ny / 2, pe.y - ny / 2 + nx / 2);
-		c.lineTo(pe.x - nx / 2 + ny / 2, pe.y - ny / 2 - nx / 2);
-		c.stroke();
-	};
-		});
-
-mxMarker.addMarker('ERmandOne', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-
-	return function()
-	{
-		c.begin();
-		c.moveTo(pe.x - nx / 2 - ny / 2, pe.y - ny / 2 + nx / 2);
-		c.lineTo(pe.x - nx / 2 + ny / 2, pe.y - ny / 2 - nx / 2);
-		c.moveTo(pe.x - nx - ny / 2, pe.y - ny + nx / 2);
-		c.lineTo(pe.x - nx + ny / 2, pe.y - ny - nx / 2);
-		c.stroke();
-	};
-		});
-
-mxMarker.addMarker('ERmany', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-
-	return function()
-	{
-		c.begin();
-		c.moveTo(pe.x + ny / 2, pe.y - nx / 2);
-		c.lineTo(pe.x - nx, pe.y - ny);
-		c.lineTo(pe.x - ny / 2, pe.y + nx / 2);
-		c.stroke();
-	};
-		});
-
-mxMarker.addMarker('ERoneToMany', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-
-	return function()
-	{
-		c.begin();
-		c.moveTo(pe.x - nx - ny / 2, pe.y - ny + nx / 2);
-		c.lineTo(pe.x - nx + ny / 2, pe.y - ny - nx / 2);
-		c.moveTo(pe.x + ny / 2, pe.y - nx / 2);
-		c.lineTo(pe.x - nx, pe.y - ny);
-		c.lineTo(pe.x - ny / 2, pe.y + nx / 2);
-		c.stroke();
-	};
-		});
-
-mxMarker.addMarker('ERzeroToMany', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-	var a = size / 2;
-
-	return function()
-	{
-		c.begin();
-		c.ellipse(pe.x - 1.5 * nx - a, pe.y - 1.5 * ny - a, 2 * a, 2 * a);
-
-		if (filled)
-		{
-			// TODO not sure if this is ok, because by default, markers use strokeColor for filling 
-			var oldColor = mxUtils.getValue(shape.style, mxConstants.STYLE_STROKECOLOR, '#666666');
-			
-			c.setFillColor('#ffffff');
-			c.fillAndStroke();
-			c.setFillColor(oldColor);
-		}
-		else
-		{
-			c.stroke();
-		}
-
-		c.begin();
-		c.moveTo(pe.x + ny / 2, pe.y - nx / 2);
-		c.lineTo(pe.x - nx, pe.y - ny);
-		c.lineTo(pe.x - ny / 2, pe.y + nx / 2);
-		c.stroke();
-	};
-		});
-
-mxMarker.addMarker('ERzeroToOne', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
-		{
-	var nx = unitX * (size + sw + 1);
-	var ny = unitY * (size + sw + 1);
-	var a = size / 2;
-
-	return function()
-	{
-		c.begin();
-		c.ellipse(pe.x - 1.5 * nx - a, pe.y - 1.5 * ny - a, 2 * a, 2 * a);
-
-		if (filled)
-		{
-			// TODO not sure if this is ok, because by default, markers use strokeColor for filling 
-			var oldColor = mxUtils.getValue(shape.style, mxConstants.STYLE_STROKECOLOR, '#666666');
-			
-			c.setFillColor('#ffffff');
-			c.fillAndStroke();
-			c.setFillColor(oldColor);
-		}
-		else
-		{
-			c.stroke();
-		}
-
-		c.begin();
-		c.moveTo(pe.x - nx / 2 - ny / 2, pe.y - ny / 2 + nx / 2);
-		c.lineTo(pe.x - nx / 2 + ny / 2, pe.y - ny / 2 - nx / 2);
-		c.stroke();
-	};
-		});
+mxShapeERInfEng.prototype.constraints = [
+                                          new mxConnectionConstraint(new mxPoint(0, 0), true),
+                                          new mxConnectionConstraint(new mxPoint(1, 0), true),
+                                          new mxConnectionConstraint(new mxPoint(0, 1), true),
+                                          new mxConnectionConstraint(new mxPoint(1, 1), true),
+                                          new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+                                          new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+                                          new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+                                          new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+                                          new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+                                          new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+                                          new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+                                          new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+                                          new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+                                          new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+                                          new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+                                          new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+                                          ];
 

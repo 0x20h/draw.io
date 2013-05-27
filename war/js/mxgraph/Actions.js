@@ -1,5 +1,5 @@
 /**
- * $Id: Actions.js,v 1.7 2013-02-14 07:48:01 gaudenz Exp $
+ * $Id: Actions.js,v 1.9 2013/04/10 11:26:47 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 /**
@@ -82,7 +82,18 @@ Actions.prototype.init = function()
 	this.addAction('cut', function() { mxClipboard.cut(graph); }, null, 'sprite-cut', 'Ctrl+X');
 	this.addAction('copy', function() { mxClipboard.copy(graph); }, null, 'sprite-copy', 'Ctrl+C');
 	this.addAction('paste', function() { mxClipboard.paste(graph); }, false, 'sprite-paste', 'Ctrl+V');
-	this.addAction('delete', function() { graph.removeCells(); }, null, null, 'Delete');
+	this.addAction('delete', function()
+	{
+		// Handles special case where delete is pressed while connecting
+		if (graph.connectionHandler.isConnecting())
+		{
+			graph.connectionHandler.reset();
+		}
+		else
+		{
+			graph.removeCells();
+		}
+	}, null, null, 'Delete');
 	this.addAction('duplicate', function()
     {
 		var s = graph.gridSize;
@@ -91,6 +102,20 @@ Actions.prototype.init = function()
 	this.addAction('selectVertices', function() { graph.selectVertices(); }, null, null, 'Ctrl+Shift+V');
 	this.addAction('selectEdges', function() { graph.selectEdges(); }, null, null, 'Ctrl+Shift+E');
 	this.addAction('selectAll', function() { graph.selectAll(); }, null, null, 'Ctrl+A');
+	this.addAction('lockUnlock', function()
+	{
+		graph.getModel().beginUpdate();
+		try
+		{
+			graph.toggleCellStyles(mxConstants.STYLE_RESIZABLE, 1);
+			graph.toggleCellStyles(mxConstants.STYLE_MOVABLE, 1);
+			graph.toggleCellStyles(mxConstants.STYLE_ROTATABLE, 1);
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
+	}, null, null, 'Ctrl+L');
 
 	// Navigation actions
 	this.addAction('home', function() { graph.home(); }, null, null, 'Home');

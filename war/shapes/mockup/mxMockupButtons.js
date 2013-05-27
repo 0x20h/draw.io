@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupButtons.js,v 1.6 2013/03/18 08:56:19 david Exp $
+ * $Id: mxMockupButtons.js,v 1.8 2013/05/16 06:09:21 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -651,6 +651,7 @@ mxShapeMockupOnOffButton.prototype.cst = {
 		STATE_ON : 'on',
 		STATE_OFF : 'off',
 		FILL_COLOR2 : 'fillColor2',
+		MAIN_TEXT : 'mainText',
 		TEXT_COLOR : 'textColor',
 		TEXT_SIZE : 'textSize'
 };
@@ -683,6 +684,7 @@ mxShapeMockupOnOffButton.prototype.foreground = function(c, x, y, w, h)
 	var state = mxUtils.getValue(this.style, mxShapeMockupOnOffButton.prototype.cst.BUTTON_STATE, mxShapeMockupOnOffButton.prototype.cst.STATE_ON);
 	var fillColor2 = mxUtils.getValue(this.style, mxShapeMockupOnOffButton.prototype.cst.FILL_COLOR2, '#008cff');
 	var textColor = mxUtils.getValue(this.style, mxShapeMockupOnOffButton.prototype.cst.TEXT_COLOR, '#ffffff,#999999').toString().split(',');
+	var mainText = mxUtils.getValue(this.style, mxShapeMockupOnOffButton.prototype.cst.MAIN_TEXT, 'ON,OFF').toString().split(',');
 	var textSize = mxUtils.getValue(this.style, mxShapeMockupOnOffButton.prototype.cst.TEXT_SIZE, '17');
 
 	if (state === mxShapeMockupOnOffButton.prototype.cst.STATE_ON)
@@ -699,14 +701,15 @@ mxShapeMockupOnOffButton.prototype.foreground = function(c, x, y, w, h)
 
 	c.fillAndStroke();
 	c.setFontSize(textSize);
+	c.setFontStyle(mxConstants.FONT_BOLD);
 
 	if(state === mxShapeMockupOnOffButton.prototype.cst.STATE_ON)
 	{
-		c.text(w * 0.375, h * 0.5, 0, 0, 'ON', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		c.text(w * 0.375, h * 0.5, 0, 0, mainText[0], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 	else if (state === mxShapeMockupOnOffButton.prototype.cst.STATE_OFF)
 	{
-		c.text(w * 0.625, h * 0.5, 0, 0, 'OFF', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		c.text(w * 0.625, h * 0.5, 0, 0, mainText[1], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 };
 

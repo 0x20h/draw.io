@@ -1,3 +1,7 @@
+/**
+ * $Id: Utils.java,v 1.2 2013/04/19 09:01:46 david Exp $
+ * Copyright (c) 2010-2013, JGraph Ltd
+ */
 package com.mxgraph.imageexport;
 
 import java.io.BufferedReader;
@@ -8,9 +12,11 @@ import java.io.Reader;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+/**
+ * General utilities using for image generation
+ */
 public class Utils
 {
-
 	/**
 	 * Encoding for the deflated input stream.
 	 */
@@ -23,6 +29,7 @@ public class Utils
 	public static String inflate(byte[] binary) throws IOException
 	{
 		StringBuffer buffer = new StringBuffer();
+
 		try
 		{
 			Reader in = new BufferedReader(new InputStreamReader(

@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupContainers.js,v 1.6 2013/02/13 16:05:21 mate Exp $
+ * $Id: mxMockupContainers.js,v 1.9 2013/05/24 05:21:11 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -386,6 +386,7 @@ mxUtils.extend(mxShapeMockupBrowserWindow, mxShape);
 mxShapeMockupBrowserWindow.prototype.cst = {
 		STROKE_COLOR2 : 'strokeColor2',
 		STROKE_COLOR3 : 'strokeColor3',
+		MAIN_TEXT : 'mainText',
 		SHAPE_BROWSER_WINDOW : 'mxgraph.mockup.containers.browserWindow'
 
 };
@@ -401,6 +402,8 @@ mxShapeMockupBrowserWindow.prototype.paintVertexShape = function(c, x, y, w, h)
 	var frameColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#666666');
 	var closeColor = mxUtils.getValue(this.style, mxShapeMockupBrowserWindow.prototype.cst.STROKE_COLOR2, '#008cff');
 	var insideColor = mxUtils.getValue(this.style, mxShapeMockupBrowserWindow.prototype.cst.STROKE_COLOR3, '#c4c4c4');
+	w = Math.max(w, 260);
+	h = Math.max(h, 110);
 	c.translate(x, y);
 	this.background(c, x, y, w, h, bgColor, frameColor);
 	c.setShadow(false);
@@ -423,6 +426,7 @@ mxShapeMockupBrowserWindow.prototype.background = function(c, x, y, w, h, bgColo
 mxShapeMockupBrowserWindow.prototype.otherShapes = function(c, x, y, w, h, frameColor, insideColor, closeColor)
 {
 	var strokeWidth = mxUtils.getValue(this.style, mxConstants.STYLE_STROKEWIDTH, '1');
+	var mainText = mxUtils.getValue(this.style, mxShapeMockupBrowserWindow.prototype.cst.MAIN_TEXT, 'http://www.draw.io,Page 1').toString().split(',');
 
 	//window buttons
 	c.setStrokeColor(frameColor);
@@ -471,8 +475,8 @@ mxShapeMockupBrowserWindow.prototype.otherShapes = function(c, x, y, w, h, frame
 	var textColor = mxUtils.getValue(this.style, mxShapeMockupBrowserWindow.prototype.cst.TEXT_COLOR, '#666666');
 	c.setFontColor(textColor);
 	c.setFontSize(17);
-	c.text(65, 25, 0, 0, 'Page 1', mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	c.text(130, 73, 0, 0, 'http://www.draw.io', mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(65, 25, 0, 0, mainText[1], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	c.text(130, 73, 0, 0, mainText[0], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	c.stroke();
 
 	//icon on tab
@@ -983,6 +987,10 @@ mxShapeMockupGroup.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	var textWidth = mxUtils.getSizeForString(groupString, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
 
+	if (textWidth === 0)
+	{
+		textWidth = Math.max(80, textWidth);
+	}
 
 	c.translate(x, y);
 
@@ -1153,6 +1161,7 @@ mxShapeMockupHorTabBar.prototype.cst = {
  * 
  * Paints the vertex shape.
  */
+//TODO tab widths are fixed, so tab text length is a bit of an issue. Cannot be fixed while we use labels for tab names
 mxShapeMockupHorTabBar.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	var fontSize = mxUtils.getValue(this.style, mxShapeMockupHorTabBar.prototype.cst.TEXT_SIZE, '17').toString();
@@ -1178,7 +1187,17 @@ mxShapeMockupHorTabBar.prototype.paintVertexShape = function(c, x, y, w, h)
 			selectedTab = i;
 		}
 
-		labelWidths[i] = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+		currW = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+
+		if (currW === 0)
+		{
+			labelWidths[i] = 40;
+		}
+		else
+		{
+			labelWidths[i] = currW;
+		};
+
 		minW = minW + labelWidths[i];
 	}
 
@@ -1384,6 +1403,7 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupHorTabBar.prototype.cst.SHAP
 /**
  * Extends mxShape.
  */
+//TODO tab widths are fixed, so tab text length is a bit of an issue. Cannot be fixed while we use labels for tab names
 function mxShapeMockupVerTabBar(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -1438,7 +1458,16 @@ mxShapeMockupVerTabBar.prototype.paintVertexShape = function(c, x, y, w, h)
 			selectedTab = i;
 		}
 
-		labelWidths[i] = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+		var currW = mxUtils.getSizeForString(currLabel, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+
+		if (currW === 0)
+		{
+			labelWidths[i] = 42;
+		}
+		else
+		{
+			labelWidths[i] = currW;
+		}
 	}
 
 	var tabW = 2 * labelOffset + Math.max.apply(Math, labelWidths);
@@ -1673,19 +1702,22 @@ mxShapeMockupAlertBox.prototype.foreground = function(c, x, y, w, h, frameColor,
 	var buttonCount = buttonText.length;
 	var buttonOffset = 10;
 	var buttonW = (w - buttonOffset * (buttonCount + 1)) / buttonCount;
-		
+
 	c.setFontColor(fontColor);
 	c.setFontSize(fontSize);
 	c.text(10, 15, 0, 0, windowTitle, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 
 	var currW = buttonOffset;
-	
+
 	for (var i = 0; i < buttonText.length; i++)
 	{
-		c.rect(currW, h - 10 - fontSize * 1.5, buttonW, fontSize * 1.5);
-		c.stroke();
-		c.text(currW + buttonW * 0.5, h - 10 - fontSize * 0.75, 0, 0, buttonText[i], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-		
+		if (buttonText[i] !== '')
+		{
+			c.rect(currW, h - 10 - fontSize * 1.5, buttonW, fontSize * 1.5);
+			c.stroke();
+			c.text(currW + buttonW * 0.5, h - 10 - fontSize * 0.75, 0, 0, buttonText[i], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		}
+
 		currW = currW + buttonW + buttonOffset;
 	}
 

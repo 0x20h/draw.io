@@ -16,7 +16,7 @@ var mxGoogleDrive =
 			'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile' ],
 	mimeType : 'application/mxe',		
 	accessToken : null,
-	accessTokenRefreshIntervalLength : /*urlParams['dev'] == 1 ? 25000 :*/ 50 * 60000,//50 minutes
+	accessTokenRefreshIntervalLength : 50 * 60000,//50 minutes
 	accessTokenRefreshIntervalId : null,
 	integrationButton : null,
 	isOperationInProgress : false,
@@ -35,7 +35,7 @@ var mxGoogleDrive =
 	autosaveArgs : null,//arguments used when retrying save during error recovery
 	authConfig : null,//auth args are stored in case auth is automatically repeated
 	autosaveIntervalId : null,
-	autosaveIntervalLength : /*urlParams['dev'] == 1 ? 30000 :*/ 60000,//autosave each 60s
+	autosaveIntervalLength : 10000,//autosave each 10s
 	fileInfo :
 	{
 		'id' : null,
@@ -45,14 +45,29 @@ var mxGoogleDrive =
 		'description' : '',
 		'parents' : []
 	},
+	defaultFileName : 'Untitled Diagram',
 	stateMachine : null,//state machine object
 	sharing : null,//sharing dialog object
 	checkAuthorization : function(authConfig)
 	{
 		//mxLog.show();
 		mxGoogleDrive.authConfig = authConfig;
-		gapi.auth.authorize(authConfig, mxGoogleDrive.handleAuth);
+
+		// Temp to get stack on error
+		try
+		{
+			gapi.auth.authorize(authConfig, mxGoogleDrive.handleAuth);
+		}
+		catch (err)
+		{
+			var img = new Image();
+    		img.src = "images/1x1.png?msg=" + encodeURIComponent(err.stack);
+		}
+		// End temp debugging
 	},
+	/**
+	 * Handles the click on 'Connect with Google Drive' button 
+	 */
 	connectClick : function()
 	{
 		var stateObj = mxGoogleDrive.getStateObject();
@@ -153,6 +168,48 @@ var mxGoogleDrive =
 						clearTimeout(mxGoogleDrive.timeoutId);
 						mxGoogleDrive.tryCount = 0;
 						mxGoogleDrive.stateMachine.ok();
+						
+						// TODO implement as listener to state machine change
+						var googleAd1 = document.getElementById("gePlug1");
+						var googleAd2 = document.getElementById("gePlug2");
+						var footerRight = document.getElementById("geSocial");
+						
+						if (googleAd1 != null && googleAd2 != null && footerRight != null)
+						{
+							if (userInfo.hd != null && !driveDomain)
+							{
+								googleAd1.innerHTML = "<a title='Please rate us' href=https://www.google.com/enterprise/marketplace/viewListing?productListingId=18806+14512935155953175632 target=&quot;_blank&quot; style=text-decoration:none;>Please help us to 100 ratings.</a>";
+								googleAd2.innerHTML = "<a title='Please rate us' href=https://www.google.com/enterprise/marketplace/viewListing?productListingId=18806+14512935155953175632 target=&quot;_blank&quot; style=text-decoration:none;>Click here to review. Thank you!</a>";
+							}
+							else if (driveDomain)
+							{
+								googleAd1.innerHTML = "<a title='Main draw.io site' href=https://www.draw.io target=&quot;_blank&quot; style=text-decoration:none;>Main draw.io site</a>";
+								googleAd2.innerHTML = "<a title=Feedback href=https://plus.google.com/communities/103111053636844545203 target=&quot;_blank&quot; style=text-decoration:none;>draw.io realtime feedback?</a>";
+							}
+							if (typeof chrome !== 'undefined')
+							{
+								if (!chrome.app.isInstalled)
+								{
+									footerRight.innerHTML = "<a title='Add draw.io to Chrome' href=# onclick='chrome.webstore.install(); return false;' style=text-decoration:none;>Add draw.io to Chrome</a>";
+								}
+								else if (Math.floor((Math.random()*100)+1) < 50)
+								{
+									footerRight.innerHTML = "<a title=Rate href=https://chrome.google.com/webstore/detail/drawio-diagramly/plgmlhohecdddhbmmkncjdmlhcmaachm target=&quot;_blank&quot; style=text-decoration:none;>Rate on Chrome WS</a>";
+								}
+							}
+						}
+						
+						/*if (userInfo.hd != null) 
+						{
+							var userData = 
+							{
+									emailHash : md5(userInfo.email),
+									domain : userInfo.hd
+							};
+
+							new mxXmlRequest(LICENSING_URL, 'userData=' + encodeURIComponent(JSON.stringify(userData))).send();
+						}*/
+						
 					}, function(err)
 					{
 						var responseText = res.getText ? res.getText() : res.responseText;
@@ -239,7 +296,7 @@ var mxGoogleDrive =
 				} else 
 				{
 					var xml = mxUtils.getXml(mxGoogleDrive.editorUi.editor.getGraphXml());
-					mxGoogleDrive.stateMachine.save(null, mxGoogleDrive.fileInfo.parents, 'Untitled Diagram', xml);
+					mxGoogleDrive.stateMachine.save(null, mxGoogleDrive.fileInfo.parents, mxGoogleDrive.defaultFileName, xml);
 				}
 			}
 		});
@@ -506,7 +563,7 @@ var mxGoogleDrive =
 			if (typeof (google) != 'undefined' && typeof (google.picker) != 'undefined')
 			{
 				var view = new google.picker.View(google.picker.ViewId.DOCS);
-				view.setMimeTypes(mxGoogleDrive.mimeType);
+				view.setMimeTypes(mxGoogleDrive.mimeType + ",application/mxe");
 
 				new google.picker.PickerBuilder().addView(view).setAppId(mxGoogleDrive.appID).setAuthUser(mxIntegration.userId)
 						.enableFeature(google.picker.Feature.NAV_HIDDEN).enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
@@ -534,44 +591,38 @@ var mxGoogleDrive =
 			});
 			this.editorUi.showDialog(new RenameDialog(this.editorUi,mxGoogleDrive.fileInfo.title, onRenameClick).container, 300, 80, true, true);
 		}));
-		mxGoogleDrive.stateMachine.ok();
-
-		//only load file if the current diagram's changes have been saved
-		if (!mxGoogleDrive.editorUi.editor.modified || driveDomain)//overwrite the unsaved changes for RT only
+		
+		var fileId = urlParams['fileId'];
+		var state = urlParams['state'];
+		
+		if (state != null)
 		{
-			//open the file if there's a fileId parameter present in the URL
-			var fileId = urlParams['fileId'];
-			var state = urlParams['state'];
-
-			if (state != null)
+			try
 			{
-				try
+				var tmp = JSON.parse(decodeURIComponent(state));
+				if (tmp.ids != null && tmp.ids.length > 0)
 				{
-					var tmp = JSON.parse(decodeURIComponent(state));
-					if (tmp.ids != null && tmp.ids.length > 0)
-					{
-						fileId = tmp.ids[0];
-					} else if (tmp.parentId != null)
-					{
-						mxGoogleDrive.fileInfo.parents = [
-						{
-							'kind' : 'drive#fileLink',
-							'id' : tmp.parentId
-						} ];
-					}
-				}
-				catch (e)
+					fileId = tmp.ids[0];
+				} else if (tmp.folderId != null)//check for folderId...
 				{
-					// Invalid state ignored
+					mxGoogleDrive.fileInfo.parents = [{'kind' : 'drive#fileLink', 'id' : tmp.folderId }];
+				} else if (tmp.parentId != null)//and parentId in case Google can't decide which one they like moar
+				{
+					mxGoogleDrive.fileInfo.parents = [{'kind' : 'drive#fileLink', 'id' : tmp.parentId }];
 				}
 			}
-
-			if (fileId != null)
+			catch (e)
 			{
-				mxGoogleDrive.stateMachine.load(fileId);
+				// Invalid state ignored
 			}
 		}
+		mxGoogleDrive.stateMachine.ok();
 
+		//open the file if there's a fileId parameter present in the URL
+		if (fileId != null)
+		{
+			mxGoogleDrive.stateMachine.load(fileId);
+		}
 	},
 	disconnect : function()
 	{
@@ -654,28 +705,14 @@ var mxGoogleDrive =
 	addDebugStuff : function()
 	{
 		var intCont = document.getElementById('integrationContainer');
-		var tokenResetBtn = document.createElement('button');
-		tokenResetBtn.innerHTML = 'Kill ze token';
-		mxEvent.addListener(tokenResetBtn, 'click', function(evt)
+		var btn = document.createElement('button');
+		btn.innerHTML = 'The button';
+		mxEvent.addListener(btn, 'click', function(evt)
 		{
-			gapi.auth.setToken(null);
-			//console.log(gapi.auth.getToken());
-			alert('Oauth token has been set to null');
+			mxGoogleDrive.stateMachine.deleteFile();
 		});
 
-		var tokenRefreshBtn = document.createElement('button');
-		tokenRefreshBtn.innerHTML = 'Renew ze token';
-		mxEvent.addListener(tokenRefreshBtn, 'click', function(evt)
-		{
-			authConfig = mxGoogleDrive.createAuthConfig(mxIntegration.userId, true);
-			gapi.auth.authorize(authConfig, function(resp)
-			{
-				mxLog.debug('Refreshed access token : ', resp);
-			});
-		});
-
-		intCont.appendChild(tokenResetBtn);
-		intCont.appendChild(tokenRefreshBtn);
+		intCont.appendChild(btn);
 	},
 	refreshToken : function()
 	{
@@ -775,10 +812,11 @@ var mxGoogleDrive =
 				mxGoogleDrive.editorUi.actions.put('open', mxGoogleDrive.openAction);
 				mxIntegration.setLoggedIn(false);
 				mxIntegration.showUserControls(false);
-				mxGoogleDrive.editorUi.showDialog(new LogoutPopup(mxGoogleDrive.editorUi).container, 320, 80, true, true);
-
+				
 				mxGoogleDrive.editorUi.actions.put('share', null);
 				mxGoogleDrive.editorUi.actions.put('rename', null);
+				window.location.replace(mxGoogleDrive.editorUi.getUrl(window.location.pathname));
+				
 
 				return this.disconnected;
 			},
@@ -870,17 +908,14 @@ var mxGoogleDrive =
 				request.execute(callback);
 				mxGoogleDrive.editorUi.editor.setStatus(mxResources.get('renaming') + '...');
 			},
-			deleteFile : function() 
+			//TODO switch to Google JS client's delete method if Google ever fixes it
+			deleteFile : function(callback) 
 			{
-				this.setMachineState(this.deleting);
-				
-				/*var request = gapi.client.drive.files.delete({
-				    'fileId' : mxGoogleDrive.fileInfo.id
-				});*/
-				
-				request.execute(function(resp) 
-				{});
-			} 
+				var request = gapi.client.drive.files.trash({
+				    'fileId': mxGoogleDrive.fileInfo.id
+				  });
+				request.execute(function(resp) {callback.apply(this); });
+			}
 		},
 		'saving' :
 		{

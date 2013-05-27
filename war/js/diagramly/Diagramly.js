@@ -1,5 +1,5 @@
 /*
- * $Id: Diagramly.js,v 1.68 2013/03/19 18:39:48 boris Exp $
+ * $Id: Diagramly.js,v 1.76 2013/05/27 09:02:12 gaudenz Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 // For compatibility with open servlet on GAE
@@ -21,14 +21,29 @@ function setCurrentXml(data, filename)
 		var mxCellEditorStartEditing = mxCellEditor.prototype.startEditing;
 		mxCellEditor.prototype.startEditing = function(cell, trigger)
 		{
-			mxCellEditorStartEditing.apply(this, arguments);
-			var state = this.graph.view.getState(cell);
+			// First run cannot set display before supercall because textarea is lazy created
+			// Lazy instantiates textarea to save memory in IE
+			if (this.textarea == null)
+			{
+				this.init();
+			}
 			
-			// Replaces linefeeds for richt text editing
+			var state = this.graph.view.getState(cell);
+
 			if (state != null && state.style['html'] == 1 && typeof(tinyMCE) != 'undefined')
 			{
 				this.textarea.style.display = 'none';
-				
+			}
+			else
+			{
+				this.textarea.style.display = 'block';
+			}
+			
+			mxCellEditorStartEditing.apply(this, arguments);
+						
+			// Replaces linefeeds for richt text editing
+			if (this.textarea.style.display == 'none')
+			{
 				var tbHeight = (mxClient.IS_IE || urlParams['tiny'] == '2') ? 90 : 30;
 								
 				this.text2 = document.createElement('textarea');
@@ -37,14 +52,24 @@ function setCurrentXml(data, filename)
 				this.text2.style.visibility = 'hidden';
 				this.text2.className = 'mxCellEditor';
 				this.text2.value = this.textarea.value.replace(/\n/g, '<br/>');
-				this.text2.style.height = (parseInt(this.textarea.style.height) + tbHeight + 14) + 'px'
-				this.text2.style.width = (parseInt(this.textarea.style.width) + 16) + 'px'
 
 				var div = document.createElement('div');
 				div.style.position = 'absolute';
-
-				div.style.left = (parseInt(this.textarea.style.left) - 8) + 'px';
-				div.style.top = Math.max(0, (parseInt(this.textarea.style.top) - tbHeight)) + 'px';
+				
+				if (this.graph.getModel().isEdge(cell))
+				{
+					this.text2.style.width = (parseInt(this.textarea.style.width) + 16) + 'px';
+					this.text2.style.height = (parseInt(this.textarea.style.height) + tbHeight + 14) + 'px';
+					div.style.left = (parseInt(this.textarea.style.left) - 8) + 'px';
+					div.style.top = Math.max(0, (parseInt(this.textarea.style.top) - tbHeight)) + 'px';
+				}
+				else
+				{
+					this.text2.style.width = state.width + 'px';
+					this.text2.style.height = (state.height + tbHeight + 14) + 'px';
+					div.style.left = state.x + 'px';
+					div.style.top = (state.y - tbHeight) + 'px';
+				}
 
 				div.appendChild(this.text2);
 				this.graph.container.appendChild(div);
@@ -66,7 +91,10 @@ function setCurrentXml(data, filename)
 								style.textAlign = this.textarea.style.textAlign;
 								style.color = this.textarea.style.color;
 								style.fontWeight = this.textarea.style.fontWeight;
+								style.background = 'transparent';
 								style.margin = '2px';
+								
+								ed.getBody().focus();
 							}
 						}));
 					}));
@@ -92,11 +120,13 @@ function setCurrentXml(data, filename)
 					this.installedListener = true;
 				}
 
-				tinyMCE.execCommand('mceAddControl', true, 'mxCellEditor1');
+				window.setTimeout(function()
+				{
+					tinyMCE.execCommand('mceAddControl', true, 'mxCellEditor1');
+				}, 0);
 			}
 			else
 			{
-				this.textarea.style.display = 'block';
 				this.textarea.focus();
 				this.textarea.select();
 			}
@@ -221,33 +251,6 @@ function setCurrentXml(data, filename)
 	// ------------------------------------------------------
 	// End of Experimental code for rich text in-place editor
 	// ------------------------------------------------------
-	
-	// Adds all Sign stencils
-	var signs = ['Animals', 'Food', 'Healthcare', 'Nature', 'People', 'Safety', 'Science', 'Sports', 'Tech', 'Transportation', 'Travel'];
-	Sidebar.prototype.signs = signs;
-
-	// Adds all mockup stencils
-	var mockups = ['Buttons', 'Containers', 'Forms', 'Graphics', 'Markup', 'Misc', 'Navigation', 'Text'];
-	Sidebar.prototype.mockups = mockups;
-
-	// Adds all Electrical stencils
-	var ee = ['Abstract', 'Capacitors', 'Diodes', 'Electro-mechanical', 'IEC logic gates', 'IEC417', 'Inductors',
-	         'Instruments', 'Logic gates', 'Miscellaneous', 'MOSFETs1', 'MOSFETs2', 'Op amps', 'Opto-electronics',
-	         'PLC ladder', 'Power semiconductors', 'Radio', 'Resistors', 'Signal sources', 'Thermionic devices',
-	         'Transistors', 'Waveforms'];
-	Sidebar.prototype.ee = ee;
-
-	var cisco = [ 'Buildings', 'Computers and Peripherals', 'Controllers and Modules', 'Directors', 'Hubs and Gateways', 'Misc', 
-	         'Modems and Phones', 'People', 'Routers', 'Security', 'Servers', 'Storage', 'Switches', 'Wireless'];
-	Sidebar.prototype.cisco = cisco;
-	
-	// Adds all PID stencils
-	var pids = ['Compressors', 'Heat Exchangers', 'Instruments', 'Pumps', 'Valves', 'Vessels'];
-	Sidebar.prototype.pids = pids;
-	
-	// Default submenu image is replaced in Diagram.ly for black menu
-	// so we have to change the URL to point to our local image
-	mxPopupMenu.prototype.submenuImage = IMAGE_PATH + '/submenu.gif';
 
 	// Adds or overrides menus
 	var menusInit = Menus.prototype.init;
@@ -257,46 +260,6 @@ function setCurrentXml(data, filename)
 		var graph = this.editorUi.editor.graph;
 		var editorUi = this.editorUi;
 
-		// Adds shapes submenu
-		// LATER: Lazy creation of DOM for initially hidden palettes
-		this.put('moreShapes', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			var addItem = mxUtils.bind(this, function(names, label, prefix)
-			{
-				prefix = (prefix != null) ? prefix : '';
-				
-				var item = menu.addItem(label || names[0], null, mxUtils.bind(this, function()
-				{
-					this.editorUi.sidebar.togglePalettes(prefix, names);
-				}), parent);
-				
-				if (this.editorUi.sidebar.palettes[prefix + names[0]][0].style.display != 'none')
-				{
-					this.addCheckmark(item);
-				}
-			});
-			
-			addItem(['general'], mxResources.get('general'));
-			addItem(['images'], mxResources.get('images'));
-			addItem(['uml'], 'UML');
-			addItem(['er'], 'Entity Relation');
-			addItem(['ios'], 'iOS');
-			addItem(['flowchart'], 'Flowchart');
-			addItem(mockups, 'Mockups', 'mockup');
-			addItem(['bpmn', 'bpmnGateways', 'bpmnEvents'], 'BPMN');
-			addItem(['basic'], mxResources.get('basic'));
-			addItem(['arrows'], mxResources.get('arrows'));
-			addItem(['computer', 'finance', 'clipart', 'networking', 'people', 'telco'], 'Clipart');
-			addItem(signs, 'Signs', 'signs');
-			addItem(ee, 'Electrical', 'electrical');
-			addItem(['Compute', 'ContentDelivery', 'Database', 'DeploymentManagement',
-                     'Groups', 'Messaging', 'Misc', 'Networking', 'NonServiceSpecific',
-                     'OnDemandWorkforce', 'Storage'], 'AWS', 'aws');
-			addItem(pids, 'P&ID', 'pid');
-			addItem(['leanMapping'], 'Lean Mapping');
-			addItem(cisco, 'Cisco', 'cisco');
-		})));
-		
 		this.editorUi.actions.put('new', new Action(mxResources.get('blankDrawing'), mxUtils.bind(this, function()
 		{
 			window.open(this.editorUi.getUrl());
@@ -518,9 +481,73 @@ function setCurrentXml(data, filename)
 			}
 		});
 		
+		// Adds language menu to options only if localStorage is available for
+		// storing the choice. We do not want to use cookies for older browsers.
+		// Note that the URL param lang=XX is available for setting the language
+		// in older browsers. URL param has precedence over the saved setting.
+		if (isLocalStorage)
+		{
+			this.put('language', new Menu(mxUtils.bind(this, function(menu, parent)
+			{
+				var addLangItem = mxUtils.bind(this, function (id)
+				{
+					var lang = (id == '') ? mxResources.get('automatic') : mxLanguageMap[id];
+					
+					var item = menu.addItem(lang, null, mxUtils.bind(this, function()
+					{
+						mxSettings.setLanguage(id);
+						mxSettings.save();
+						mxUtils.alert(mxResources.get('restartForChangeRequired'));
+					}), parent);
+					
+					if (id == mxLanguage || (id == '' && mxLanguage == null))
+					{
+						this.addCheckmark(item);
+					}
+				});
+				
+				addLangItem('');
+				menu.addSeparator(parent);
+				
+				// LATER: Sort menu by language name
+				for(var langId in mxLanguageMap) 
+				{
+					addLangItem(langId);
+				}
+			})));
+			
+			// Adds to options menu
+			/*var menu = this.menus['options'];
+			var oldFunct = menu.funct;
+			
+			menu.funct = mxUtils.bind(this, function(menu, parent)
+			{
+				oldFunct.apply(this, arguments);
+				
+				menu.addSeparator();
+				this.addSubmenu('language', menu);
+			});*/
+			
+			// Extends the menubar with the language menu
+			var menusCreateMenuBar = Menus.prototype.createMenubar;
+			Menus.prototype.createMenubar = function(container)
+			{
+				var menubar = menusCreateMenuBar.apply(this, arguments);
+				
+				var langMenu = this.get('language');
+				
+				if (langMenu != null)
+				{
+					menubar.addMenu(mxResources.get('language'), langMenu.funct);
+				}
+
+				return menubar;
+			};
+		}
+		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['help', 'video', 'gPlusCommunity', 'github', 'stackExchange', '-', 'status', 'about']);
+			this.addMenuItems(menu, ['video', 'gPlusCommunity', '-', 'github', 'stackExchange', '-', 'help', 'status', '-', 'about']);
 			
 			if (urlParams['test'] == '1')
 			{
@@ -598,6 +625,21 @@ function setCurrentXml(data, filename)
 			this.editorUi.showDialog(new EmbedDialog(this.editorUi).container, 620, 420, true, true);
 		}));
 		
+		this.editorUi.actions.addAction('moreShapes', mxUtils.bind(this, function()
+		{
+			this.editorUi.showDialog(new MoreShapesDialog(this.editorUi).container, 360, 170, true, true);
+		}));
+		
+		// Adds plugins menu item in file menu only if localStorage is available for
+		// storing the plugins.
+		if (isLocalStorage)
+		{
+			this.editorUi.actions.addAction('plugins', mxUtils.bind(this, function()
+			{
+				this.editorUi.showDialog(new PluginsDialog(this.editorUi).container, 360, 156, true, false);
+			}));
+		}
+		
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addSubmenu('new', menu, parent);
@@ -613,7 +655,7 @@ function setCurrentXml(data, filename)
 				this.addMenuItems(menu, ['-', 'share', '-'], parent);
 			}
 
-			this.addMenuItems(menu, ['import', 'export', '-', 'embed', 'editFile', '-', 'pageSetup', 'print'], parent);
+			this.addMenuItems(menu, ['import', 'export', '-', 'embed', 'editFile', '-', 'moreShapes', 'plugins', '-', 'pageSetup', 'print'], parent);
 		})));
 	};
 

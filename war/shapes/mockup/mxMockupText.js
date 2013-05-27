@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupText.js,v 1.3 2013/02/18 15:14:10 mate Exp $
+ * $Id: mxMockupText.js,v 1.4 2013/05/24 07:12:36 mate Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -120,7 +120,16 @@ mxShapeMockupLinkBar.prototype.paintVertexShape = function(c, x, y, w, h)
 			selectedButton = i;
 		}
 
-		buttonWidths[i] = mxUtils.getSizeForString(buttonText, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+		var currW = mxUtils.getSizeForString(buttonText, fontSize, mxConstants.DEFAULT_FONTFAMILY).width;
+
+		if (currW === 0)
+		{
+			buttonWidths[i] = 42;
+		}
+		else
+		{
+			buttonWidths[i] = currW;
+		}
 
 		buttonTotalWidth += buttonWidths[i];
 	}
@@ -167,6 +176,7 @@ mxShapeMockupLinkBar.prototype.background = function(c, w, h, rSize, buttonNum, 
 	//draw the button separators
 	c.setStrokeColor(separatorColor);
 	c.begin();
+
 	for (var i = 1; i < buttonNum; i++)
 	{
 		if (i !== selectedButton && i !== (selectedButton + 1))
@@ -235,10 +245,13 @@ mxShapeMockupLinkBar.prototype.buttonText = function(c, w, h, textString, button
 
 	var textW = mxUtils.getSizeForString(textString, fontSize, mxConstants.DEFAULT_FONTFAMILY).width * 0.5;
 
-	c.begin();
-	c.moveTo((w + buttonWidth * 0.5) * trueW / minW - textW, h * 0.5 + fontSize * 0.5);
-	c.lineTo((w + buttonWidth * 0.5) * trueW / minW + textW, h * 0.5 + fontSize * 0.5);
-	c.stroke();
+	if (textString !== null && textString !== '')
+	{
+		c.begin();
+		c.moveTo((w + buttonWidth * 0.5) * trueW / minW - textW, h * 0.5 + fontSize * 0.5);
+		c.lineTo((w + buttonWidth * 0.5) * trueW / minW + textW, h * 0.5 + fontSize * 0.5);
+		c.stroke();
+	}
 };
 
 mxCellRenderer.prototype.defaultShapes[mxShapeMockupLinkBar.prototype.cst.SHAPE_LINK_BAR] = mxShapeMockupLinkBar;
@@ -293,6 +306,12 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 	var callDir = mxUtils.getValue(this.style, mxShapeMockupCallout.prototype.cst.CALLOUT_DIR, mxShapeMockupCallout.prototype.cst.DIR_NW);
 	var textWidth = mxUtils.getSizeForString(calloutText, textSize, mxConstants.DEFAULT_FONTFAMILY).width;
 	textWidth = textWidth * 1.2;
+
+	if (textWidth == 0)
+	{
+		textWidth = 70;
+	}
+
 	c.translate(x, y);
 	c.setFontSize(textSize);
 	c.setFontColor(textColor);
@@ -326,7 +345,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(w, h);
 			c.stroke();
 		}
-		
+
 		c.text(textWidth * 0.5, callH * 0.5, 0, 0, calloutText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 	else if (callDir === mxShapeMockupCallout.prototype.cst.DIR_NE)
@@ -357,7 +376,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(0, h);
 			c.stroke();
 		}
-		
+
 		c.text(w - textWidth * 0.5, callH * 0.5, 0, 0, calloutText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 	else if (callDir === mxShapeMockupCallout.prototype.cst.DIR_SE)
@@ -388,7 +407,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(0, 0);
 			c.stroke();
 		}
-		
+
 		c.text(w - textWidth * 0.5, h - callH * 0.5, 0, 0, calloutText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 	else if (callDir === mxShapeMockupCallout.prototype.cst.DIR_SW)
@@ -419,7 +438,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.lineTo(w, 0);
 			c.stroke();
 		}
-		
+
 		c.text(textWidth * 0.5, h - callH * 0.5, 0, 0, calloutText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 
@@ -431,8 +450,8 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupCallout.prototype.cst.SHAPE_
 //Sticky Note
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 function mxShapeMockupStickyNote(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -443,8 +462,8 @@ function mxShapeMockupStickyNote(bounds, fill, stroke, strokewidth)
 };
 
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 mxUtils.extend(mxShapeMockupStickyNote, mxShape);
 
 mxShapeMockupStickyNote.prototype.cst = {
@@ -455,10 +474,10 @@ mxShapeMockupStickyNote.prototype.cst = {
 };
 
 /**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
 mxShapeMockupStickyNote.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
@@ -494,12 +513,12 @@ mxShapeMockupStickyNote.prototype.foreground = function(c, w, h)
 	c.lineTo(w * 0.28, h * 0.13);
 	c.close();
 	c.fill();
-	
+
 	c.setFontSize(fontSize);
 	c.setFontColor(fontColor);
 	var lineNum = mainText.length;
 	var textH = lineNum * fontSize * 1.5;
-	
+
 	for (var i = 0; i < mainText.length; i++)
 	{
 		c.text(w / 2, (h - textH) / 2 + i * fontSize * 1.5 + fontSize * 0.75, 0, 0, mainText[i], mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
@@ -512,8 +531,8 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupStickyNote.prototype.cst.SHA
 //Bulleted List
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 function mxShapeMockupBulletedList(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -524,8 +543,8 @@ function mxShapeMockupBulletedList(bounds, fill, stroke, strokewidth)
 };
 
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 mxUtils.extend(mxShapeMockupBulletedList, mxShape);
 
 mxShapeMockupBulletedList.prototype.cst = {
@@ -540,10 +559,10 @@ mxShapeMockupBulletedList.prototype.cst = {
 };
 
 /**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
 mxShapeMockupBulletedList.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
@@ -563,22 +582,17 @@ mxShapeMockupBulletedList.prototype.foreground = function(c, w, h)
 	var mainText = mxUtils.getValue(this.style, mxShapeMockupBulletedList.prototype.cst.MAIN_TEXT, 'Note line 1,Note line 2,Note line 3').toString().split(',');
 	var fontColor = mxUtils.getValue(this.style, mxShapeMockupBulletedList.prototype.cst.TEXT_COLOR, '#666666');
 	var fontSize = mxUtils.getValue(this.style, mxShapeMockupBulletedList.prototype.cst.TEXT_SIZE, '17');
-	var bulletStyle = mxUtils.getValue(this.style, mxShapeMockupBulletedList.prototype.cst.BULLET_STYLE, mxShapeMockupBulletedList.prototype.cst.STYLE_HYPHEN);
+	var bulletStyle = mxUtils.getValue(this.style, mxShapeMockupBulletedList.prototype.cst.BULLET_STYLE, 'none');
 
 	c.setFontColor(fontColor);
 	c.setFontSize(fontSize);
-	
-	var bullet = '-';
-	
-	if (bulletStyle === mxShapeMockupBulletedList.prototype.cst.STYLE_DOT)
-	{
-		bullet = String.fromCharCode(8226);
-	}
+
+	var bullet = '';
 
 	for (var i = 0; i < mainText.length; i++)
 	{
 		var currText = '';
-		
+
 		if (bulletStyle === mxShapeMockupBulletedList.prototype.cst.STYLE_NUM)
 		{
 			currText = (i + 1) + ') ' + mainText[i]; 
@@ -587,11 +601,15 @@ mxShapeMockupBulletedList.prototype.foreground = function(c, w, h)
 		{
 			currText = '- ' + mainText[i]; 
 		}
-		else
+		else if(bulletStyle === mxShapeMockupBulletedList.prototype.cst.STYLE_DOT)
 		{
 			currText = String.fromCharCode(8226) + ' ' + mainText[i]; 
 		}
-		
+		else
+		{
+			currText = '  ' + mainText[i]; 
+		}
+
 		c.text(10, i * fontSize * 1.5 + fontSize * 0.75, 0, 0, currText, mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 };
@@ -602,8 +620,8 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupBulletedList.prototype.cst.S
 //Text Box
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 function mxShapeMockupTextBox(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -614,8 +632,8 @@ function mxShapeMockupTextBox(bounds, fill, stroke, strokewidth)
 };
 
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 mxUtils.extend(mxShapeMockupTextBox, mxShape);
 
 mxShapeMockupTextBox.prototype.cst = {
@@ -626,10 +644,10 @@ mxShapeMockupTextBox.prototype.cst = {
 };
 
 /**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
 mxShapeMockupTextBox.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
@@ -652,7 +670,7 @@ mxShapeMockupTextBox.prototype.foreground = function(c, w, h)
 
 	c.setFontColor(fontColor);
 	c.setFontSize(fontSize);
-	
+
 	for (var i = 0; i < mainText.length; i++)
 	{
 		c.text(5, i * fontSize * 1.5 + fontSize * 0.75, 0, 0, mainText[i], mxConstants.ALIGN_LEFT, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
@@ -665,8 +683,8 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupTextBox.prototype.cst.SHAPE_
 //Captcha
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 function mxShapeMockupCaptcha(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -677,8 +695,8 @@ function mxShapeMockupCaptcha(bounds, fill, stroke, strokewidth)
 };
 
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 mxUtils.extend(mxShapeMockupCaptcha, mxShape);
 
 mxShapeMockupCaptcha.prototype.cst = {
@@ -689,10 +707,10 @@ mxShapeMockupCaptcha.prototype.cst = {
 };
 
 /**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
 mxShapeMockupCaptcha.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
@@ -721,7 +739,7 @@ mxShapeMockupCaptcha.prototype.foreground = function(c, w, h)
 	c.lineTo(w * 0.4, h * 0.75);
 	c.close();
 	c.fill();
-	
+
 	c.begin();
 	c.moveTo(w * 0.7, h * 0.1);
 	c.lineTo(w * 0.95, h * 0.23);
@@ -731,12 +749,12 @@ mxShapeMockupCaptcha.prototype.foreground = function(c, w, h)
 	c.lineTo(w * 0.8, h);
 	c.close();
 	c.fill();
-	
+
 	c.setFontColor(fontColor);
 	c.setFontSize(fontSize);
-	
+
 	c.text(w * 0.5, h * 0.5, 0, 0, mainText, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	
+
 	c.rect(0, 0, w, h);
 	c.stroke();
 };
@@ -747,8 +765,8 @@ mxCellRenderer.prototype.defaultShapes[mxShapeMockupCaptcha.prototype.cst.SHAPE_
 //Alphanumeric
 //**********************************************************************************************************************************************************
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 function mxShapeMockupAlphanumeric(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
@@ -759,8 +777,8 @@ function mxShapeMockupAlphanumeric(bounds, fill, stroke, strokewidth)
 };
 
 /**
-* Extends mxShape.
-*/
+ * Extends mxShape.
+ */
 mxUtils.extend(mxShapeMockupAlphanumeric, mxShape);
 
 mxShapeMockupAlphanumeric.prototype.cst = {
@@ -771,10 +789,10 @@ mxShapeMockupAlphanumeric.prototype.cst = {
 };
 
 /**
-* Function: paintVertexShape
-* 
-* Paints the vertex shape.
-*/
+ * Function: paintVertexShape
+ * 
+ * Paints the vertex shape.
+ */
 mxShapeMockupAlphanumeric.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	var mainText = mxUtils.getValue(this.style, mxShapeMockupAlphanumeric.prototype.cst.MAIN_TEXT, '0-9 A B C D E F G H I J K L M N O P Q R S T U V X Y Z');

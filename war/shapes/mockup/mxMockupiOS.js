@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupiOS.js,v 1.3 2013/02/28 13:49:43 mate Exp $
+ * $Id: mxMockupiOS.js,v 1.4 2013/05/07 08:55:50 gaudenz Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -2385,16 +2385,20 @@ mxShapeMockupiOnOffButton.prototype.foreground = function(c, x, y, w, h, state)
 
 mxShapeMockupiOnOffButton.prototype.mainText = function(c, x, y, w, h, state)
 {
+	var mainText = mxUtils.getValue(this.style, 'mainText', null);
 	c.setFontColor('#ffffff');
 	c.setFontSize(8.5);
-
-	if(state === mxMockupC.STATE_ON)
+	
+	if (mainText != '')
 	{
-		c.text(w * 0.5 - h * 0.4, h * 0.5, 0, 0, 'ON', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
-	}
-	else if (state === mxMockupC.STATE_OFF)
-	{
-		c.text(w * 0.5 + h * 0.4, h * 0.5, 0, 0, 'OFF', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		if(state === mxMockupC.STATE_ON)
+		{
+			c.text(w * 0.5 - h * 0.4, h * 0.5, 0, 0, mainText || 'ON', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		}
+		else if (state === mxMockupC.STATE_OFF)
+		{
+			c.text(w * 0.5 + h * 0.4, h * 0.5, 0, 0, mainText || 'OFF', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		}
 	}
 };
 
@@ -2637,10 +2641,15 @@ mxShapeMockupiLockButton.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(20, h * 0.5 + 3.5);
 	c.close();
 	c.fillAndStroke();
-
-	c.setFontSize(12.5);
-	c.setFontColor('#cccccc');
-	c.text(w / 2 + 20.5, h / 2, 0, 0, 'slide to unlock', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	
+	var mainText = mxUtils.getValue(this.style, 'mainText', null);
+	
+	if (mainText != '')
+	{
+		c.setFontSize(12.5);
+		c.setFontColor('#cccccc');
+		c.text(w / 2 + 20.5, h / 2, 0, 0, 'slide to unlock', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+	}
 };
 
 mxCellRenderer.prototype.defaultShapes[mxMockupC.SHAPE_ILOCK_BUTTON] = mxShapeMockupiLockButton;

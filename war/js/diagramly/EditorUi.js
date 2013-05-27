@@ -1,5 +1,8 @@
 (function()
 {
+	// Overrides footer height
+	EditorUi.prototype.footerHeight = 44;
+
 	// Fetches footer from page
 	EditorUi.prototype.createFooter = function()
 	{
@@ -15,8 +18,34 @@
 		return footer;
 	};
 
-	// Overrides footer height
-	EditorUi.prototype.footerHeight = 44;
+	/**
+	 * Hook for sidebar footer container.
+	 */
+	EditorUi.prototype.createSidebarFooterContainer = function()
+	{
+		var div =  this.createDiv('geSidebarContainer');
+		div.style.position = 'absolute';
+		div.style.overflow = 'hidden';
+		div.style.height = '36px';
+		div.style.borderWidth = '3px';
+
+		var elt = document.createElement('a');
+		elt.setAttribute('href', 'javascript:void(0);');
+		elt.className = 'geTitle';
+		elt.style.height = '100%';
+		elt.style.paddingTop = '9px';
+		mxUtils.write(elt, mxResources.get('moreShapes') + '...');
+
+		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.actions.get('moreShapes').funct();
+			mxEvent.consume(evt);
+		}));
+		
+		div.appendChild(elt);
+		
+		return div;
+	};
 
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;
@@ -24,6 +53,7 @@
 	{
 		editorUiInit.apply(this, arguments);
 		var signs = this.sidebar.signs;
+		var rack = this.sidebar.rack;
 		var mockups = this.sidebar.mockups;
 		var ee = this.sidebar.ee;
 		var pids = this.sidebar.pids;
@@ -93,69 +123,100 @@
 			info.parentNode.removeChild(info);
 		}
 
+		// Changes top level error handling
+		window.onerror = function(message,url,linenumber)
+		{
+			try
+			{
+				if (message != null && url != null &&
+						( (message.indexOf('Script error.') != -1) ||
+						  (url.indexOf('tiny_mce') != -1) ) )
+				{
+					// TODO log external domain script failure
+					// "Script error." is reported when the error occurs in a script
+					// that is hosted on a domain other than the domain of the current
+					// page
+				}
+				else
+				{
+					var img = new Image();
+		    		img.src = "images/1x1.png?msg=" + encodeURIComponent(message) + "&url=" + encodeURIComponent(url) + "&lnum=" + encodeURIComponent(linenumber) + "&mxvers=" + encodeURIComponent(mxClient.VERSION);
+				}
+			}
+			catch (err)
+			{
+				
+			}
+		};
+
 		// Hides libraries
 		var stc = urlParams['libs'];
 
 		// Default libraries for domains
 		if (stc == null)
 		{
-			stc = 'general;images;uml;ios;er;bpmn;flowchart;basic;arrows;mockups';
+			stc = 'general;images;uml;ios;er;bpmn;flowchart;basic;arrows;mockups;';
 		}
 
 		var tmp = stc.split(';');
 
 		// Individual libs
-		var all = [ 'general', 'images', 'uml', 'er', 'ios', 'flowchart', 'basic', 'arrows', 'leanMapping' ]
+		var all = ['general', 'images', 'uml', 'er', 'ios', 'flowchart', 'basic', 'arrows', 'lean_mapping'];
 
-		for ( var i = 0; i < all.length; i++)
+		for (var i = 0; i < all.length; i++)
 		{
 			if (mxUtils.indexOf(tmp, all[i]) < 0)
 			{
-				this.sidebar.togglePalettes('', [ all[i] ]);
+				this.sidebar.showPalettes('', [all[i]], false);
 			}
 		}
 
 		if (mxUtils.indexOf(tmp, 'bpmn') < 0)
 		{
-			this.sidebar.togglePalettes('', [ 'bpmn', 'bpmnGateways', 'bpmnEvents' ]);
+			this.sidebar.showPalettes('', ['bpmn', 'bpmnGateways', 'bpmnEvents'], false);
 		}
 		
 		if (mxUtils.indexOf(tmp, 'clipart') < 0)
 		{
-			this.sidebar.togglePalettes('', [ 'computer', 'finance', 'clipart', 'networking', 'people', 'telco' ]);
+			this.sidebar.showPalettes('', ['computer', 'finance', 'clipart', 'networking', 'people', 'telco'], false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'mockups') < 0)
 		{
-			this.sidebar.togglePalettes('mockup', mockups);
+			this.sidebar.showPalettes('mockup', mockups, false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'signs') < 0)
 		{
-			this.sidebar.togglePalettes('signs', signs);
+			this.sidebar.showPalettes('signs', signs, false);
+		}
+
+		if (mxUtils.indexOf(tmp, 'rack') < 0)
+		{
+			this.sidebar.showPalettes('rack', rack, false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'electrical') < 0)
 		{
-			this.sidebar.togglePalettes('electrical', ee);
+			this.sidebar.showPalettes('electrical', ee, false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'aws') < 0)
 		{
-			this.sidebar.togglePalettes('aws', [ 'Compute', 'ContentDelivery', 'Database', 'DeploymentManagement', 'Groups', 'Messaging',
-					'Misc', 'Networking', 'NonServiceSpecific', 'OnDemandWorkforce', 'Storage' ]);
+			this.sidebar.showPalettes('aws', ['Compute', 'ContentDelivery', 'Database', 'DeploymentManagement', 'Groups', 'Messaging',
+					'Misc', 'Networking', 'NonServiceSpecific', 'OnDemandWorkforce', 'Storage'], false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'pid') < 0)
 		{
-			this.sidebar.togglePalettes('pid', pids);
+			this.sidebar.showPalettes('pid', pids, false);
 		}
 
 		if (mxUtils.indexOf(tmp, 'cisco') < 0)
 		{
-			this.sidebar.togglePalettes('cisco', cisco);
+			this.sidebar.showPalettes('cisco', cisco, false);
 		}
-		// TODO: Expand the first entry
+		// LATER: Expand the first entry
 
 		// Adds zoom via shift-wheel
 		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up)
@@ -191,66 +252,6 @@
 				mxEvent.consume(evt);
 			}
 		}));
-
-		// Installs popup menu in Sidebar
-		var menu = new mxPopupMenu(this.menus.get('moreShapes').funct);
-		var ignoreEvent = false;
-
-		mxEvent.addListener(this.sidebarContainer, 'mousedown', function(evt)
-		{
-			if (!ignoreEvent)
-			{
-				menu.hideMenu();
-			}
-
-			if (!mxEvent.isConsumed(evt) && mxEvent.isPopupTrigger(evt))
-			{
-				var origin = mxUtils.getScrollOrigin();
-				var point = new mxPoint(mxEvent.getClientX(evt) + origin.x, mxEvent.getClientY(evt) + origin.y);
-
-				// Menu is shifted by 1 pixel so that the mouse up event
-				// is routed via the underlying shape instead of the DIV
-				menu.popup(point.x + 1, point.y + 1, null, evt);
-				mxEvent.consume(evt, false);
-				ignoreEvent = true;
-			}
-		});
-
-		mxEvent.addListener(this.sidebar.moreShapes, 'mousedown', function(evt)
-		{
-			menu.hideMenu();
-
-			if (!mxEvent.isConsumed(evt))
-			{
-				var origin = mxUtils.getScrollOrigin();
-				var point = new mxPoint(mxEvent.getClientX(evt) + origin.x, mxEvent.getClientY(evt) + origin.y);
-				// Menu is shifted by 1 pixel so that the mouse up event
-				// is routed via the underlying shape instead of the DIV
-				menu.popup(point.x + 1, point.y + 1, null, evt);
-				mxEvent.consume(evt, false);
-				ignoreEvent = true;
-			}
-		});
-
-		// NOTE: In quirks mode the event is not the same instance as above
-		mxEvent.addListener(document.body, 'mousedown', function(evt)
-		{
-			if (!ignoreEvent)
-			{
-				menu.hideMenu();
-			}
-
-			ignoreEvent = false;
-		});
-
-		// Disables crisp rendering in SVG except for connectors, actors,
-		// cylinder,
-		// ellipses must be enabled after rendering the sidebar items
-		if (urlParams['aa'] == '0')
-		{
-			mxShape.prototype.crisp = false;
-			mxCellRenderer.prototype.defaultShapes['folder'].prototype.crisp = false;
-		}
 
 		// Initial page layout view, scrollBuffer and timer-based scrolling
 		var graph = this.editor.graph;
@@ -429,11 +430,6 @@
 		{
 			this.menubar.container.appendChild(this.createIntegrationUi());
 		}
-
-		/*setInterval(mxUtils.bind(this, function()
-		{
-			this.checkSession();
-		}), 1000);*/
 	};
 
 	/**
@@ -791,7 +787,8 @@
 			if (mxClient.IS_IE && document.documentMode == 9)
 			{
 				dx = '-7px';
-			} else if (mxClient.IS_IE)
+			}
+			else if (mxClient.IS_IE)
 			{
 				dx = '-3px';
 			}

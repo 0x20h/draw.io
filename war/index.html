@@ -12,7 +12,12 @@
 		database schema and networks. Also possible are telecommunication network, workflow, flowcharts, maps overlays and GIS, electronic 
 		circuit and social network diagrams. It's like a mini version of Visio in your browser.">
 	<meta itemprop="image" content="https://lh4.googleusercontent.com/-cLKEldMbT_E/Tx8qXDuw6eI/AAAAAAAAAAs/Ke0pnlk8Gpg/w500-h344-k/BPMN%2Bdiagram%2Brc2f.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
+    <link rel="apple-touch-icon" sizes="72x72" href="www/img/apple-touch-icon-ipad.png"> 
+	<link rel="apple-touch-icon" sizes="114x114" href="www/img/apple-touch-icon-iphone4.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="www/img/apple-touch-icon-ipad3.png">
+	<link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
 	<style type="text/css">
 		.geSidebarContainer .geTitle { color:#606060; }
 		.geSidebar .geItem:hover { opacity:1; }
@@ -61,40 +66,44 @@
 		}
 	</style>
 	<script>
-		//force SSL for all browsers except for IE8 and under
-		if('https:' != document.location.protocol && (navigator.userAgent.indexOf('MSIE') == -1 || navigator.userAgent.indexOf('MSIE 9') != -1 || navigator.userAgent.indexOf('MSIE 10') != -1)) 
+		var isSvgBrowser = true; // SVG capable browser, regardless of whether used or not
+		var isOfficialDomain = window.location.host.indexOf('www.draw.io') != -1 || window.location.host.indexOf('diagram.ly') != -1 || window.location.host.indexOf('diagramly.com') != -1;
+	</script>
+
+<!--[if lte IE 8]>
+	<script>
+		isSvgBrowser = false;
+	</script>
+<![endif]-->
+
+	<script>
+		if (window.location.host.indexOf('rt.draw.io') != -1 && isSvgBrowser) 
 		{
-			if(window.location.host.indexOf('www.draw.io') != -1 || window.location.host.indexOf('diagram.ly') != -1 || window.location.host.indexOf('diagramly.com') != -1) 
+			var url = 'https://drive.draw.io' + window.location.search;
+			window.location.replace(url);
+		}
+
+		//force SSL for all browsers except for IE8 and under
+		if('https:' != document.location.protocol && isSvgBrowser) 
+		{
+			if (isOfficialDomain) 
 			{
 				var url = 'https://www.draw.io' + window.location.search;
 				window.location.replace(url);
 			}
-			if(window.location.host.indexOf('rt.draw.io') != -1) 
+
+			if (window.location.host.indexOf('drive.draw.io') != -1) 
 			{
-				var url = 'https://rt.draw.io' + window.location.search;
+				var url = 'https://drive.draw.io' + window.location.search;
 				window.location.replace(url);
 			}
 		}
-	</script>
-	<!--[if lte IE 8]>
-	<script>
-		if('https:' == document.location.protocol) 
-		{
-			if(window.location.host.indexOf('www.draw.io') != -1 || window.location.host.indexOf('diagram.ly') != -1 || window.location.host.indexOf('diagramly.com') != -1) 
-			{
-				var url = 'http://www.draw.io' + window.location.search;   
-				window.location.replace(url);
-			}
-		}
-	</script>
-	<![endif]-->
-	<script type="text/javascript">
+
 		var t0 = new Date();
 	
 		// Public global variables
 		var MAX_REQUEST_SIZE = 10485760;
-		var MAX_WIDTH = 12000;
-		var MAX_HEIGHT = 12000;
+		var MAX_AREA = 10000 * 10000;
 	
 		// CUSTOM_PARAMETERS - URLs for save and export
 		var EXPORT_URL = 'http://exp.draw.io/ImageExport2/export';
@@ -142,7 +151,7 @@
 		 * - url=url: Opens diagram from URL (URL should be encoded)
 		 * - share=ID of shared diagram
 		 * - analytics=0: Disables Google Analytics
-		 * - rotation=1: Enables rotation handle
+		 * - plugins=0: Do not load Plugins
 		 * - gapi=0: Do not load Google APIs
 		 * - rt=0: Do not start rt
 		 * - nerd=1: Includes all the weird stuff
@@ -174,6 +183,8 @@
 			
 			return result;
 		})(window.location.href);
+		 
+		var isLocalStorage = typeof(Storage) != 'undefined';
 
 		/**
 		 * Synchronously adds scripts to the page.
@@ -192,6 +203,36 @@
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(g, s);
 		};
 		
+		function getLanguage() 
+		{
+			var lang = urlParams['lang'];
+			
+			if (lang == null)
+			{
+				// Cannot use mxSettings here
+				if (isLocalStorage) 
+				{
+					try
+					{
+						var value = localStorage.getItem('.drawio-config');
+						
+						if (value != null)
+						{
+							lang = JSON.parse(value).language || null;
+						}
+					}
+					catch (e)
+					{
+						// cookies are disabled, attempts to use local storage will cause
+						// a DOM error at a minimum on Chrome
+						isLocalStorage = false;
+					}
+				}
+			}
+			
+			return lang;
+		};
+		
 		// Sets the base path, the UI language via URL param and configures the
 		// supported languages to avoid 404s. The loading of all core language
 		// resources is disabled as all required resources are in grapheditor.
@@ -200,21 +241,41 @@
 		// save a GET request. This requires that all resources be present in
 		// the special bundle.
 		var mxLoadResources = false;
-		var mxLanguage = urlParams['lang'];
-		var mxLanguages = ['ar', 'bs', 'cs', 'da', 'de', 'el', 'es', 'es-ar', 'fr', 'hu', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pl', 'pt-br', 'pt', 'ro', 'ru', 'sr', 'sv', 'th', 'tr', 'uk', 'zh'];
+		var mxLanguage = getLanguage();
+		
+		// Add new languages here. First entry is translated to [Automatic]
+		// in the menu defintion in Diagramly.js.
+		var mxLanguageMap = {'bs' : 'Bosanski', 'cs' : 'Čeština', 'da' : 'Dansk', 'de' : 'Deutsch', 'en' : 'English', 'es' : 'Español', 
+				'es-ar' : 'Español (Ar)', 'fr' : 'Français', 'id' : 'Indonesian', 'it' : 'Italiano', 'hu' : 'Magyar', 'nl' : 'Nederlands', 'no' : 'Norsk', 
+				'pl' : 'Polski', 'pt-br' : 'Português (Brasil)', 'pt' : 'Português (Portugal)', 'ro' : 'Română', 'fi' : 'Suomi', 'sv' : 'Svenska', 'tr' : 'Türkçe',
+				'el' : 'Ελληνικά', 'ru' : 'Русский', 'sr' : 'Српски', 'uk' : 'Українська', 'th' : 'ไทย', 'ar' : 'العربية', 'zh' : '中文（中国）', 'ja' : '日本語', 'ko' : '한국어'};
+		// traditional chinese is 中文（台灣）
+
 		var geBasePath = 'js';
 		var mxBasePath = 'mxgraph';
+		var mxLanguages = [];
+		
+		// Populates the list of supported special language bundles
+		for (var lang in mxLanguageMap)
+		{
+			// Empty means default (ie. browser language), "en" means English (default for unsupported languages)
+			// Since "en" uses no extension this must not be added to the array of supported language bundles.
+			if (lang != 'en')
+			{
+				mxLanguages.push(lang);
+			}
+		}
 		
 		// Used to request grapheditor/mxgraph sources in dev mode
-		var mxDevUrl = 'http://devhost.jgraph.com/mxgraph2';
+		var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
 
 		// Customizes sharing host
 		var share = urlParams['sharehost'];
 		
 		var driveDomain = window.location.hostname == 'rt.draw.io' ||
-							window.location.hostname == 'drawiort.appspot.com' ||
+							window.location.hostname == 'drive.draw.io' ||
 							urlParams['rt'] == '1';
-		
+
 		if (share != null)
 		{
 			SHARE_HOST = share;
@@ -255,7 +316,7 @@
 		}
 
 		// Loads gapi for all browsers but IE8 and below
-		if(urlParams['gapi'] != '0' && (navigator.userAgent.indexOf('MSIE') == -1 || (document.documentMode != null && document.documentMode >= 9)))
+		if (urlParams['gapi'] != '0' && isSvgBrowser)
 		{
 			mxscript('https://apis.google.com/js/api.js');
 			mxscript('js/diagramly/DriveRealTime.js');
@@ -280,7 +341,14 @@
 			
 			if (status != null)
 			{
-				status.innerHTML = 'Page could not be loaded';
+				status.innerHTML = 'Page could not be loaded. Please try refreshing.';
+			}
+			
+			var status2 = document.getElementById('geStatus2');
+			
+			if (status2 != null)
+			{
+				status2.innerHTML = '';
 			}
 		};
 	</script>
@@ -292,49 +360,40 @@
 		<p>
 		draw.io is a free online diagram drawing application. You can use it to create UML, entity relationship, org charts, BPMN and BPM,
 		database schema and networks. Also possible are telecommunication network, workflow, flowcharts, maps overlays and GIS, electronic 
-		circuit and social network diagrams. It's like a mini version of Visio in your browser.
-		</p>
-		<p>
-		You can export your diagram in our raw XML format, PNG or JPG, PDF or SVG and later re-load your saved XML.
-		</p>
-		<p>
-		If you are reading this, your browser might not be capable of displaying the application. 
-		The supported list of browsers is Firefox 3+, Microsoft Internet Explorer 7+, Safari 5+, Opera 9.0+,
-		Camino 2+, Epiphany 2.0+, Galeon 2.0+ and Google Chrome 12+.
+		circuit and social network diagrams. It's not meant as a full online Visio alternative, but you can perform most diagramming functions.
 		</p>
 	</div>
 	<div class="geBlock" style="margin-top:20px;padding:0px;text-align:center;">
 		<h3 id="geStatus">Loading... Please Wait</h3>
+		<p id="geStatus2">
+				draw.io is written in JavaScript, if you continue to see this message for an extended time it is because you have JavaScript switched off, turn it on if you want to see the application. Also, you can read 
+				<a href="http://forum.jgraph.com/questions/66/what-is-the-privacydata-handling-statement-for-the-diagramly-example">the draw.io privacy policy</a> or view our 
+				<a href="http://www.jgraph.com">web site</a>, which uses no JavaScript.
+		</p>
 	</div>
 </div>
-<noscript>
-	<br>
-	<p>
-	draw.io is written in JavaScript, and you're not seeing the application because you have JavaScript off, turn it on if you want to see the application. Also, you can read 
-	<a href="http://forum.jgraph.com/questions/66/what-is-the-privacydata-handling-statement-for-the-diagramly-example">the draw.io privacy policy</a> or view our 
-	<a href="http://www.jgraph.com">web site</a>, which uses no JavaScript.
-	</p>
-</noscript>
 <div id="geFooter" style="visibility:hidden;padding-top:6px;padding-left:6px;">
-	<table width="100%" height="100%" align="right">
+	<table width="100%" height="100%" align="right" style="font-size:1em;">
 	  <tr>
 		<td id="gePowered" width="25%" valign="top" align="left" style="white-space:nowrap;overflow:hidden;padding-top:3px;font-family:'Helvetica Neue',Arial,sans-serif;padding-right:8px;_padding-right:16px;"> 
-	      <a title="HTML5 JavaScript Diagramming" href="http://www.jgraph.com/mxgraph.html" target="_blank" style="font-size:8pt;text-decoration:none;font-weight:bold;color:#454545;">
+	      <a title="HTML5 JavaScript Diagramming" href="http://www.jgraph.com/index.html" target="_blank" style="text-decoration:none;">
 	      HTML5 JavaScript Diagramming
 	      </a>
 	    </td>
 		<td id="gePlug1" width="25%" valign="top" align="center" style="overflow:hidden;padding-top:3px;_padding-top:7px;font-family:'Helvetica Neue',Arial,sans-serif;padding-right:8px;_padding-right:16px;"> 
-	      <a title="Confluence Plugin" href="https://marketplace.atlassian.com/plugins/com.mxgraph.confluence.plugins.diagramly" target="_blank" style="font-size:8pt;white-space:nowrap;text-decoration:none;font-weight:bold;color:#454545;">
-	      	Confluence&reg Plugin
+	      <a title="Confluence Plugin" href="https://marketplace.atlassian.com/plugins/com.mxgraph.confluence.plugins.diagramly" target="_blank" style="text-decoration:none">
+	      	Confluence&reg; Plugin
 	      </a>
 	    </td>
 		<td id="gePlug2" width="25%" valign="top" align="center" style="overflow:hidden;padding-top:3px;_padding-top:7px;font-family:'Helvetica Neue',Arial,sans-serif;padding-right:8px;_padding-right:16px;"> 
-	      <a title="Google Apps For Business" href="https://www.google.com/enterprise/marketplace/viewListing?productListingId=18806+14512935155953175632" target="_blank" style="font-size:8pt;white-space:nowrap;text-decoration:none;font-weight:bold;color:#454545;">
+	      <a title="Google Apps For Business" href="https://www.google.com/enterprise/marketplace/viewListing?productListingId=18806+14512935155953175632" target="_blank" style="text-decoration:none;">
 	      	Add to Google Apps For Business
 	      </a>
 	    </td>
-	    <td id="geSocial" width="25%" align="right" style="white-space:nowrap;overflow:hidden;padding-bottom:10px;padding-right:20px;">
-	      <a href="https://plus.google.com/b/100634082864796769666/" target="__blank"><img title="Draw.io on Google+" src="images/web/glyphicons_362_google+_alt.png" width="24" height="24" border=""></a>
+	    <td id="geSocial" width="25%" valign="top" align="right" style="overflow:hidden;padding-top:3px;_padding-top:7px;font-family:'Helvetica Neue',Arial,sans-serif;padding-right:8px;_padding-right:16px;"> 
+	      <a title="Google+ News" href="https://plus.google.com/100634082864796769666/posts/a8PZEao9nPp" target="__blank" target="_blank" style="text-decoration:none;">
+	      	Language menu
+	      </a>
 	    </td>
 	  </tr>
 	</table>
@@ -343,39 +402,228 @@
 <script type="text/javascript">
 (function()
 {
-	// Adds basic error handling
-	window.onerror = function(message,url,linenumber)
+	// TEMP debugging to debug null node problem
+	mxShape.prototype.redraw = function()
+	{
+		this.updateBoundsFromPoints();
+		
+		if (this.checkBounds())
+		{
+			try
+			{
+				this.node.style.visibility = '';
+			}
+			catch (err)
+			{
+				var img = new Image();
+	    		img.src = "images/1x1.png?msg=" + encodeURIComponent('redraw' + err.stack);
+			}
+
+			if (this.node.nodeName == 'DIV' && this.isHtmlAllowed())
+			{
+				this.redrawHtmlShape();
+			}
+			else
+			{	
+				this.redrawShape();
+			}
+
+			this.updateBoundingBox();
+		}
+		else
+		{
+			try
+			{
+				this.node.style.visibility = 'hidden';
+			}
+			catch (err)
+			{
+				var img = new Image();
+	    		img.src = "images/1x1.png?msg=" + encodeURIComponent('redraw' + err.stack);
+			}
+
+			this.boundingBox = null;
+		}
+	};
+	
+	mxGraphView.prototype.transformControlPoint = function(state, pt)
+	{
+		var orig = state.origin;
+		var result;
+		
+		try
+		{
+			result = new mxPoint(this.scale * (pt.x + this.translate.x + orig.x),
+			    	this.scale * (pt.y + this.translate.y + orig.y));
+		}
+		catch (err)
+		{
+			var img = new Image();
+    		img.src = "images/1x1.png?msg=" + encodeURIComponent('transformControlPoint' + err.stack);
+		}
+		
+	    return result;
+	};
+	
+	mxGraph.prototype.isOrthogonal = function(edge)
+	{
+		var tmp;
+		
+		try
+		{
+			var orthogonal = edge.style[mxConstants.STYLE_ORTHOGONAL];
+			
+			if (orthogonal != null)
+			{
+				return orthogonal;
+			}
+			
+			tmp = this.view.getEdgeStyle(edge);
+		}
+		catch (err)
+		{
+			var img = new Image();
+    		img.src = "images/1x1.png?msg=" + encodeURIComponent('isOrthogonal' + err.stack);
+		}
+		
+		return tmp == mxEdgeStyle.SegmentConnector ||
+			tmp == mxEdgeStyle.ElbowConnector ||
+			tmp == mxEdgeStyle.SideToSide ||
+			tmp == mxEdgeStyle.TopToBottom ||
+			tmp == mxEdgeStyle.EntityRelation ||
+			tmp == mxEdgeStyle.OrthConnector;
+	};
+	
+	mxXmlRequest.prototype.simulate = function(doc, target)
 	{
 		try
 		{
-			if (message != null && message.indexOf('Script error.') != -1)
+			doc = doc || document;
+			var old = null;
+	
+			if (doc == document)
 			{
-				// TODO log external domain script failure
-				// "Script error." is reported when the error occurs in a script
-				// that is hosted on a domain other than the domain of the current
-				// page
+				old = window.onbeforeunload;		
+				window.onbeforeunload = null;
 			}
-			else
+					
+			var form = doc.createElement('form');
+			form.setAttribute('method', this.method);
+			form.setAttribute('action', this.url);
+	
+			if (target != null)
 			{
-				var img = new Image();
-	    		img.src = "images/1x1.png?msg=" + encodeURIComponent(message) + "&url=" + encodeURIComponent(url) + "&lnum=" + encodeURIComponent(linenumber);
+				form.setAttribute('target', target);
+			}
+	
+			form.style.display = 'none';
+			form.style.visibility = 'hidden';
+	
+			var pars = (this.params.indexOf('&') > 0) ?
+				this.params.split('&') :
+				this.params.split();
+	
+			// Adds the parameters as textareas to the form
+			for (var i=0; i<pars.length; i++)
+			{
+				var pos = pars[i].indexOf('=');
+				
+				if (pos > 0)
+				{
+					var name = pars[i].substring(0, pos);
+					var value = pars[i].substring(pos+1);
+					
+					var textarea = doc.createElement('textarea');
+					textarea.setAttribute('name', name);
+					value = value.replace(/\n/g, '&#xa;');
+					
+					var content = doc.createTextNode(value);
+					textarea.appendChild(content);
+					form.appendChild(textarea);
+				}
+			}
+			
+			doc.body.appendChild(form);
+			form.submit();
+			doc.body.removeChild(form);
+	
+			if (old != null)
+			{		
+				window.onbeforeunload = old;
 			}
 		}
 		catch (err)
 		{
-			
+			var img = new Image();
+    		img.src = "images/1x1.png?msg=" + encodeURIComponent('simulate' + err.stack);
 		}
 	};
+	// End of debug
 
 	var ui = new EditorUi(new Editor());
+	mxIntegration.editorUi = ui;
+	
+	// Loads plugins (see https://gist.github.com/anonymous/4266731/raw/e440d765cb12c10504a8e3b08403d1700400dd31/gistfile1.txt)
+	function getPlugins() 
+	{
+		var plugins = null;
+		
+		// Cannot use mxSettings here
+		if (isLocalStorage) 
+		{
+			try
+			{
+				var value = localStorage.getItem('.drawio-config');
+				
+				if (value != null)
+				{
+					plugins = JSON.parse(value).plugins || null;
+				}
+			}
+			catch (e)
+			{
+				// cookies are disabled, attempts to use local storage will cause
+				// a DOM error at a minimum on Chrome
+				isLocalStorage = false;
+			}
+		}
+		
+		return plugins;
+	};
+	
+	var plugins = getPlugins();
+	
+	if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
+	{
+		// Global entry point for plugins is Draw.loadPlugin
+		window.Draw = new Object();
+		window.Draw.loadPlugin = function(callback)
+		{
+			callback(ui);
+		};
+		
+		// Loads plugins asynchronously
+		if (mxUtils.confirm(mxResources.get('pluginWarning', [plugins.join('\n')]).replace(/\\n/g, '\n')))
+		{
+			for (var i = 0; i < plugins.length; i++)
+			{
+				mxscript(plugins[i]);
+			}
+		}
+	}
 
 	if (typeof(gapi) != 'undefined')
 	{
 		if (driveDomain)
 		{
-			mxGoogleDrive.appID = '671128082532';
-			mxGoogleDrive.clientID = '671128082532.apps.googleusercontent.com';
-			mxGoogleDrive.apiKey = 'AIzaSyCFv2xAOSjqDofA8oTzCsOR4TyeOBahB2A';
+			// If RT is being forced on non-RT site, leave the project details untouched
+			if (urlParams['rt'] != '1')
+			{
+				mxGoogleDrive.appID = '671128082532';
+				mxGoogleDrive.clientID = '671128082532.apps.googleusercontent.com';
+				mxGoogleDrive.apiKey = 'AIzaSyCFv2xAOSjqDofA8oTzCsOR4TyeOBahB2A';
+			}
+
 			mxGoogleDrive.mimeType = 'application/mxr';
 		}
 

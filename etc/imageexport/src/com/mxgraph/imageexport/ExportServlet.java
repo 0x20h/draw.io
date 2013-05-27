@@ -1,9 +1,14 @@
+/**
+ * $Id: ExportServlet.java,v 1.14 2013/04/27 12:54:12 david Exp $
+ * Copyright (c) 2010-2013, JGraph Ltd
+ */
 package com.mxgraph.imageexport;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,13 +25,19 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscodingHints;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.batik.util.SVGConstants;
+import org.w3c.dom.DOMImplementation;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.FontMapper;
 import com.lowagie.text.pdf.PdfContentByte;
@@ -39,7 +50,8 @@ import com.mxgraph.util.mxUtils;
 import com.objectplanet.image.PngEncoder;
 
 /**
- * Servlet implementation class ImageServlet.
+ * Servlet that creates an image of the XML graphics primitives
+ * passed in
  */
 public class ExportServlet extends HttpServlet
 {
@@ -67,7 +79,7 @@ public class ExportServlet extends HttpServlet
 	/**
 	 * Cache for all images.
 	 */
-	private transient Hashtable<String, Image> imageCache = new Hashtable<String, Image>();
+	protected transient Hashtable<String, Image> imageCache = new Hashtable<String, Image>();
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -142,7 +154,7 @@ public class ExportServlet extends HttpServlet
 		Color bg = (tmp != null) ? mxUtils.parseColor(tmp) : null;
 
 		// Checks parameters
-		if (w > 0 && w <= Constants.MAX_WIDTH && h > 0 && h <= Constants.MAX_HEIGHT && format != null && xml != null && xml.length() > 0)
+		if (w > 0 && h > 0 && w * h <= Constants.MAX_AREA && format != null && xml != null && xml.length() > 0)
 		{
 			// Allows transparent backgrounds only for PNG
 			if (bg == null && !format.equals("png"))
@@ -254,7 +266,7 @@ public class ExportServlet extends HttpServlet
 		w += 1;
 		h += 1;
 
-		Document document = new Document(new Rectangle(w, h));
+		Document document = new Document(new com.lowagie.text.Rectangle(w, h));
 		PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
 		document.open();
 
@@ -316,17 +328,14 @@ public class ExportServlet extends HttpServlet
 	{
 		// Caches custom images for the time of the request
 		final Hashtable<String, Image> shortCache = new Hashtable<String, Image>();
+		
+		// Shared transcoder
+		final mxImageTranscoder transcoder = new mxImageTranscoder();
 
 		mxGraphicsCanvas2D g2c = new mxGraphicsCanvas2D(g2)
 		{
 			public Image loadImage(String src)
 			{
-				// We can't do SSL connections currently
-				if (src.startsWith("https://") && src.length() > 8)
-				{
-					src = "http://" + src.substring(8, src.length());
-				}
-
 				// Relative path handling
 				if (!src.startsWith("http://"))
 				{
@@ -372,6 +381,68 @@ public class ExportServlet extends HttpServlet
 				}
 
 				return image;
+			}
+			
+			/**
+			 * 
+			 */
+			public void image(double x, double y, double w, double h, String src,
+					boolean aspect, boolean flipH, boolean flipV)
+			{
+				if (src != null && w > 0 && h > 0)
+				{
+					// We can't do SSL connections currently
+					if (src.startsWith("https://") && src.length() > 8)
+					{
+						src = "http://" + src.substring(8, src.length());
+					}
+
+					Image img = null;
+
+					if (src.endsWith("svg"))
+					{
+					    TranscodingHints hints = new TranscodingHints();
+					    hints.put(ImageTranscoder.KEY_WIDTH, new Float(w));
+					    hints.put(ImageTranscoder.KEY_HEIGHT, new Float(h));
+					    DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
+					    hints.put(ImageTranscoder.KEY_DOM_IMPLEMENTATION, impl);
+					    hints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT_NAMESPACE_URI, SVGConstants.SVG_NAMESPACE_URI);
+					    hints.put(ImageTranscoder.KEY_DOCUMENT_ELEMENT, SVGConstants.SVG_SVG_TAG);
+					    hints.put(ImageTranscoder.KEY_XML_PARSER_VALIDATING, false);
+					    
+					    transcoder.setTranscodingHints(hints);
+
+					    try
+						{
+							transcoder.transcode(new TranscoderInput(src), null);
+						}
+						catch (TranscoderException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					    
+					    img = transcoder.getImage();
+					}
+					else
+					{
+						img = loadImage(src);
+					}
+
+					if (img != null)
+					{
+						Rectangle bounds = getImageBounds(img, x, y, w, h, aspect);
+						img = scaleImage(img, bounds.width, bounds.height);
+
+						if (img != null)
+						{
+							drawImage(
+									createImageGraphics(bounds.x, bounds.y,
+											bounds.width, bounds.height, flipH, flipV),
+									img, bounds.x, bounds.y);
+						}
+					}
+				}
 			}
 		};
 

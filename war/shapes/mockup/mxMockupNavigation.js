@@ -1,5 +1,5 @@
 /**
- * $Id: mxMockupNavigation.js,v 1.3 2013/02/25 17:54:05 mate Exp $
+ * $Id: mxMockupNavigation.js,v 1.4 2013/04/04 09:21:27 gaudenz Exp $
  * Copyright (c) 2006-2010, JGraph Ltd
  */
 
@@ -383,7 +383,7 @@ function mxShapeMockupCoverFlow(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeMockupCoverFlow, mxShape);
 
 mxShapeMockupCoverFlow.prototype.cst = {
-		SHAPE_COVER_FLOW : 'mxgraph.mockup.navigation.coverFlow',
+		SHAPE_COVER_FLOW : 'mxgraph.mockup.navigation.coverFlow'
 };
 
 /**

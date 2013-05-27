@@ -1,5 +1,5 @@
 /**
- * $Id: Dialogs.js,v 1.5 2013-01-29 17:23:31 gaudenz Exp $
+ * $Id: Dialogs.js,v 1.7 2013/05/07 06:54:12 gaudenz Exp $
  * Copyright (c) 2006-2012, JGraph Ltd
  */
 /**
@@ -965,7 +965,7 @@ function ExportDialog(editorUi)
 	
 	function checkValues()
 	{
-		if (widthInput.value > MAX_WIDTH || widthInput.value < 0)
+		if (widthInput.value * heightInput.value > MAX_AREA || widthInput.value < 0)
 		{
 			widthInput.style.backgroundColor = 'red';
 		}
@@ -974,7 +974,7 @@ function ExportDialog(editorUi)
 			widthInput.style.backgroundColor = '';
 		}
 		
-		if (heightInput.value > MAX_HEIGHT || heightInput.value < 0)
+		if (widthInput.value * heightInput.value > MAX_AREA || heightInput.value < 0)
 		{
 			heightInput.style.backgroundColor = 'red';
 		}
@@ -1063,11 +1063,11 @@ function ExportDialog(editorUi)
 			    if (svgDoc.createElementNS == null)
 			    {
 			    	root.setAttribute('xmlns', mxConstants.NS_SVG);
-			    	root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
 			    }
 			    
 			    root.setAttribute('width', Math.ceil(bounds.width * scale / vs + 2 * b) + 'px');
 			    root.setAttribute('height', Math.ceil(bounds.height * scale / vs + 2 * b) + 'px');
+		    	root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
 			    root.setAttribute('version', '1.1');
 
 			    // Adds group for anti-aliasing via transform
@@ -1121,8 +1121,7 @@ function ExportDialog(editorUi)
 				var xml = mxUtils.getXml(root);
 
 				// Requests image if request is valid
-				if (xml.length <= MAX_REQUEST_SIZE && width < MAX_WIDTH && width > 0 &&
-					height < MAX_HEIGHT && height > 0)
+				if (xml.length <= MAX_REQUEST_SIZE && w > 0 && h > 0 && w * h < MAX_AREA)
 				{
 					var bg = graph.background || '#ffffff';
 					

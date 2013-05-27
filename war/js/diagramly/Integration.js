@@ -9,6 +9,7 @@ var mxIntegration =
 	loggedOut : true,
 	userControlsEl : null,
 	spinner : null,
+	editorUi : null,// reference to EditorUi
 
 	createUi : function()
 	{
@@ -31,11 +32,28 @@ var mxIntegration =
 		this.logoutEl.style.display = 'none';
 		this.logoutEl.innerHTML = mxResources.get('signOut', 'Sign Out');
 
-		mxEvent.addListener(this.logoutEl, 'click', function(evt)
+		mxEvent.addListener(this.logoutEl, 'click', mxUtils.bind(this, function(evt)
 		{
-			mxIntegration.clearCookies();
-			mxIntegration.activeIntegration.disconnect();
-		});
+			var performDisconnect = function() 
+			{
+				mxIntegration.clearCookies();
+				mxIntegration.activeIntegration.disconnect();
+			};
+			if(this.editorUi.editor.modified) 
+			{
+				var disconnect = confirm(mxResources.get('allChangesLost'));
+				if(disconnect) 
+				{
+					window.onbeforeunload = null;
+					performDisconnect.apply(this, arguments);
+				} 
+			}
+			else 
+			{
+				window.onbeforeunload = null;
+				performDisconnect.apply(this, arguments);
+			}
+		}));
 
 		var clearDiv = document.createElement('div');
 		clearDiv.style.clear = 'both';
@@ -218,38 +236,3 @@ EditorUi.prototype.setUserInfo = function(email, userId)
 	editorUi.userInfo.logoutEl.style.display = 'inline';
 	editorUi.userInfo.emailEl.innerHTML = email;
 };
-/*
- * Currently not used anywhere 
- */
-EditorUi.prototype.checkSession = function()
-{
-	var integration = mxIntegration.activeIntegration;
-	
-	var cookieId = integration != null ? integration.getUserIDFromCookie(integration.getCookie()) : null;
-
-	// if the cookies value has changed, notify the user about the end of the session
-	if ((mxIntegration.userId != null && mxIntegration.userId != cookieId && !mxIntegration.loggedOut)
-			|| (cookieId == null && !mxIntegration.loggedOut))
-	{
-		mxIntegration.setLoggedIn(false);
-		mxIntegration.showUserControls(false);
-		this.showDialog(new LogoutPopup(this).container, 320, 80, true, true);
-	}
-};
-
-LogoutPopup = function(ui)
-{
-	var div = document.createElement('div');
-	div.setAttribute('align', 'center');
-
-	mxUtils.write(div, mxResources.get('userLoggedOut') + ' ' + mxIntegration.getUsername());
-	mxUtils.br(div);
-	mxUtils.br(div);
-
-	div.appendChild(mxUtils.button(mxResources.get('close'), function()
-	{
-		ui.hideDialog();
-	}));
-
-	this.container = div;
-}

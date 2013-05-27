@@ -32,8 +32,8 @@
 				<file name="Dialogs.js" />
 				<file name="Sidebar.js" />
 				<file name="EditorUi.js" />
-				<file name="Sharing.js" />
 				<file name="Diagramly.js" />
+				<file name="Settings.js" />
 			</sources>
 			
 			<sources dir="${basedir}/../../war/js/sharejs">
@@ -92,6 +92,7 @@
 	<!-- ================== Cleans the output directories ============================= -->
 
 	<target name="war" depends="javac" description="Create a war file">
+		<mkdir dir="${build.dir}"/>
 		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
 		</zip>
 	</target>
